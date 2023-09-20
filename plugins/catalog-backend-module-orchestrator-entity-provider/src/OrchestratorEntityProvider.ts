@@ -53,16 +53,17 @@ export class OrchestratorEntityProvider
         'orchestrator.sonataFlowService.environment',
       ) ?? 'development';
 
-    const pluginUrl = await args.discovery.getBaseUrl('orchestrator');
+    const orchestratorPluginUrl =
+      await args.discovery.getBaseUrl('orchestrator');
     const sonataFlowServiceUrl = `${sonataFlowBaseUrl}:${sonataFlowPort}`;
 
     return new OrchestratorEntityProvider({
-      sonataFlowServiceUrl: sonataFlowServiceUrl,
-      orchestratorPluginUrl: pluginUrl,
+      sonataFlowServiceUrl,
+      orchestratorPluginUrl,
       scheduler: args.scheduler,
       logger: args.logger,
       owner,
-      environment: environment,
+      environment,
     });
   }
 
@@ -118,7 +119,9 @@ export class OrchestratorEntityProvider
     this.logger.info('Retrieving workflow definitions');
 
     try {
-      const svcResponse = await fetch(`${this.orchestratorPluginUrl}/items`);
+      const svcResponse = await fetch(
+        `${this.orchestratorPluginUrl}/workflows`,
+      );
       const json = await svcResponse.json();
       const items = json.items as WorkflowItem[];
 

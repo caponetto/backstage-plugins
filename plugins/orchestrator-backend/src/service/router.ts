@@ -100,11 +100,7 @@ export async function createRouter(
     `${sonataFlowBaseUrl}:${sonataFlowPort}`,
   );
   const jiraService = new JiraService(logger, cloudEventService);
-  const openApiService = new OpenApiService(
-    logger,
-    discovery,
-    sonataFlowResourcesPath,
-  );
+  const openApiService = new OpenApiService(logger, discovery);
   const dataInputSchemaService = new DataInputSchemaService(
     logger,
     githubToken,
