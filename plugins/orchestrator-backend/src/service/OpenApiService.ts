@@ -7,16 +7,16 @@ import openApiTemplate from './openapi-template.json';
 export class OpenApiService {
   logger: Logger;
   discovery: DiscoveryApi;
-  kogitoResourcesPath: string;
+  sonataFlowResourcesPath: string;
 
   constructor(
     logger: Logger,
     discovery: DiscoveryApi,
-    kogitoResourcesPath: string,
+    sonataFlowResourcesPath: string,
   ) {
     this.logger = logger;
     this.discovery = discovery;
-    this.kogitoResourcesPath = kogitoResourcesPath;
+    this.sonataFlowResourcesPath = sonataFlowResourcesPath;
   }
 
   private async fetchScaffolderActions(): Promise<any> {
