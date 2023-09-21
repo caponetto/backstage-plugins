@@ -2,12 +2,9 @@ import { Git } from '@backstage/backend-common';
 import { Config } from '@backstage/config';
 import { ScmIntegrations } from '@backstage/integration';
 
-import { Octokit } from 'octokit';
 import { Logger } from 'winston';
 
-export class GithubService {
-  private readonly octokit: Octokit;
-
+export class GitService {
   private readonly git: Git;
 
   private readonly logger: Logger;
@@ -27,12 +24,9 @@ export class GithubService {
     const githubIntegration = ScmIntegrations.fromConfig(config)
       .github.list()
       .pop();
-    this.octokit = new Octokit({
-      auth: githubIntegration?.config.token,
-      baseUrl: githubIntegration?.config.apiBaseUrl,
-    });
     this.git = Git.fromAuth({
-      token: githubIntegration?.config.token,
+      username: 'x-access-token',
+      password: githubIntegration?.config.token,
     });
   }
 
@@ -46,11 +40,15 @@ export class GithubService {
   }
 
   async push(dir: string, message: string): Promise<void> {
+    const branch = 'main';
     const force = true;
     const remote = 'origin';
+    const remoteRef = `refs/heads/${branch}`;
     const filepath = '.';
     this.git
-      .add({ dir, filepath })
+      .fetch({ dir })
+      .then(() => this.git.checkout({ dir, ref: branch }))
+      .then(() => this.git.add({ dir, filepath }))
       .then(() =>
         this.git.commit({
           dir,
@@ -59,8 +57,8 @@ export class GithubService {
           committer: this.committer,
         }),
       )
-      .then(() => this.git.push({ dir, remote, force }))
-      .then(() => this.logger.info('push '))
+      .then(() => this.git.push({ dir, remote, force, remoteRef }))
+      .then(() => this.logger.info('push completed'))
       .catch(ex => this.logger.error(ex));
   }
 
