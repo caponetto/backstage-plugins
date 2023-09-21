@@ -128,6 +128,8 @@ export async function createRouter(
     openApiService,
     dataInputSchemaService,
     sonataFlowResourcesPath,
+    config,
+    logger,
   );
 
   const scaffolderService: ScaffolderService = new ScaffolderService(
@@ -147,6 +149,8 @@ export async function createRouter(
     jiraService,
   );
   setupExternalRoutes(router, discovery, scaffolderService);
+
+  await workflowService.reloadWorkflows();
 
   await setupSonataflowService(
     sonataFlowBaseUrl,
@@ -448,8 +452,10 @@ async function setupSonataflowService(
   logger: Logger,
   jiraConfig?: JiraConfig,
 ) {
-  const sonataFlowResourcesAbsPath = resolve(`${sonataFlowResourcesPath}`);
-  const launcher = ['docker run --add-host host.docker.internal:host-gateway'];
+    const sonataFlowResourcesAbsPath = resolve(
+        `${sonataFlowResourcesPath}/workflows`,
+    );
+    const launcher = ['docker run --add-host host.docker.internal:host-gateway'];
   if (jiraConfig) {
     launcher.push(`--add-host jira.test:${jiraConfig.host}`);
   }

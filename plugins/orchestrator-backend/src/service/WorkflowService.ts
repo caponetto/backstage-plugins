@@ -1,4 +1,7 @@
+import { Config } from '@backstage/config';
+
 import fs from 'fs-extra';
+import { Logger } from 'winston';
 
 import {
   actions_open_api_file_path,
@@ -14,21 +17,28 @@ import {
 import { extname, join, resolve } from 'path';
 
 import { DataInputSchemaService } from './DataInputSchemaService';
+import { GithubService } from './GithubService';
 import { OpenApiService } from './OpenApiService';
 
 export class WorkflowService {
   private openApiService: OpenApiService;
   private dataInputSchemaService: DataInputSchemaService;
   private sonataFlowResourcesPath: string;
+  private logger: Logger;
+  private githubService: GithubService;
 
   constructor(
     openApiService: OpenApiService,
     dataInputSchemaService: DataInputSchemaService,
     sonataFlowResourcesPath: string,
+    config: Config,
+    logger: Logger,
   ) {
     this.openApiService = openApiService;
     this.dataInputSchemaService = dataInputSchemaService;
     this.sonataFlowResourcesPath = sonataFlowResourcesPath;
+    this.logger = logger;
+    this.githubService = new GithubService(logger, config);
   }
 
   async saveWorkflowDefinition(item: WorkflowItem): Promise<WorkflowItem> {
@@ -46,6 +56,7 @@ export class WorkflowService {
   }
 
   private async saveFile(path: string, data: any): Promise<void> {
+    this.logger.info(`Saving file ${path}`);
     const fileExtension = extname(path);
     const isWorkflow = /\.sw\.(json|yaml|yml)$/.test(path);
     let contentToSave;
@@ -60,6 +71,11 @@ export class WorkflowService {
       contentToSave = data;
     }
     await fs.writeFile(path, contentToSave, 'utf8');
+
+    await this.githubService.push(
+      this.sonataFlowResourcesPath,
+      `new changes ${path}`,
+    );
   }
 
   async saveWorkflowDefinitionFromUrl(url: string): Promise<WorkflowItem> {
@@ -154,6 +170,19 @@ export class WorkflowService {
   }
 
   private resolveRosourcePath(relativePath: string): string {
-    return resolve(join(this.sonataFlowResourcesPath, relativePath));
+    return resolve(
+      join(this.sonataFlowResourcesPath, 'workflows', relativePath),
+    );
+  }
+
+  async reloadWorkflows() {
+    this.logger.info(`Reloading workflows from Git`);
+    const localPath = `${this.sonataFlowResourcesPath}`;
+    await fs.remove(localPath);
+    await this.githubService.clone(
+      'https://github.com/tiagodolphine/backstage-orchestrator-workflows',
+      localPath,
+    );
+    await this.githubService.pull(localPath);
   }
 }
