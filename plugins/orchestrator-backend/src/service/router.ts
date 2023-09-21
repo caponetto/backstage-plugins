@@ -68,11 +68,12 @@ export async function createRouter(
     response.json({ status: 'ok' });
   });
 
-  const sonataFlowBaseUrl =
-    config.getOptionalString('orchestrator.sonataFlowService.baseUrl') ??
-    'http://localhost';
-  const sonataFlowPort =
-    config.getOptionalNumber('orchestrator.sonataFlowService.port') ?? 8899;
+  const sonataFlowBaseUrl = config.getString(
+    'orchestrator.sonataFlowService.baseUrl',
+  );
+  const sonataFlowPort = config.getNumber(
+    'orchestrator.sonataFlowService.port',
+  );
   logger.info(
     `Using SonataFlow Url of: ${sonataFlowBaseUrl}:${sonataFlowPort}`,
   );
