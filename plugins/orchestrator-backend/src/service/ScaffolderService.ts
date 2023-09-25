@@ -18,7 +18,8 @@ import { Logger } from 'winston';
 import { randomUUID } from 'crypto';
 import path from 'path';
 import { PassThrough } from 'stream';
-import {getWorkingDirectory} from "./Helper";
+
+import { getWorkingDirectory } from './Helper';
 
 export interface ActionExecutionContext {
   actionId: string;

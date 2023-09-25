@@ -31,8 +31,8 @@ import Router from 'express-promise-router';
 import app from './plugins/app';
 import auth from './plugins/auth';
 import catalog from './plugins/catalog';
-import permission from './plugins/permissions';
 import orchestrator from './plugins/orchestrator';
+import permission from './plugins/permissions';
 import proxy from './plugins/proxy';
 import scaffolder from './plugins/scaffolder';
 import search from './plugins/search';
@@ -101,7 +101,7 @@ async function main() {
   const appEnv = useHotMemoize(module, () => createEnv('app'));
   const permissionEnv = useHotMemoize(module, () => createEnv('permission'));
   const orchestratorEnv = useHotMemoize(module, () =>
-      createEnv('orchestrator'),
+    createEnv('orchestrator'),
   );
   const apiRouter = Router();
   apiRouter.use('/catalog', await catalog(catalogEnv));
