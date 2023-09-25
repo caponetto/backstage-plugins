@@ -4,7 +4,8 @@ import fs from 'fs-extra';
 import { Logger } from 'winston';
 
 import {
-  actions_open_api_file_path, default_workflows_path,
+  actions_open_api_file_path,
+  default_workflows_path,
   extractWorkflowFormatFromUri,
   fromWorkflowSource,
   schemas_folder,
@@ -19,7 +20,6 @@ import { extname, join, resolve } from 'path';
 import { DataInputSchemaService } from './DataInputSchemaService';
 import { GitService } from './GitService';
 import { OpenApiService } from './OpenApiService';
-import {getWorkingDirectory} from "./Helper";
 
 export class WorkflowService {
   private readonly openApiService: OpenApiService;
@@ -40,7 +40,9 @@ export class WorkflowService {
     this.sonataFlowResourcesPath = sonataFlowResourcesPath;
     this.logger = logger;
     this.githubService = new GitService(logger, config);
-    this.repoURL = config.getString('orchestrator.sonataFlowService.workflowsRepoUrl');
+    this.repoURL = config.getString(
+      'orchestrator.sonataFlowService.workflowsRepoUrl',
+    );
   }
 
   async saveWorkflowDefinition(item: WorkflowItem): Promise<WorkflowItem> {
@@ -56,9 +58,9 @@ export class WorkflowService {
     await this.saveFile(definitionsPath, item.definition);
 
     await this.githubService.push(
-        this.sonataFlowResourcesPath,
-        `new workflow changes ${definitionsPath}`,
-   );
+      this.sonataFlowResourcesPath,
+      `new workflow changes ${definitionsPath}`,
+    );
 
     return item;
   }
@@ -108,8 +110,8 @@ export class WorkflowService {
     await this.saveFile(path, openApi);
 
     await this.githubService.push(
-        this.sonataFlowResourcesPath,
-        `new openapi changes ${path}`,
+      this.sonataFlowResourcesPath,
+      `new openapi changes ${path}`,
     );
   }
 
@@ -186,9 +188,6 @@ export class WorkflowService {
     this.logger.info(`Reloading workflows from Git`);
     const localPath = `${this.sonataFlowResourcesPath}`;
     await fs.remove(localPath);
-    await this.githubService.clone(
-      this.repoURL,
-      localPath,
-    );
+    await this.githubService.clone(this.repoURL, localPath);
   }
 }
