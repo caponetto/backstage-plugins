@@ -13,7 +13,7 @@ import { Logger } from 'winston';
 
 import {
   default_sonataflow_container_image,
-  default_sonataflow_persistance_path,
+  default_sonataflow_persistance_path, default_workflows_path,
   fromWorkflowSource,
   Job,
   orchestrator_service_ready_topic,
@@ -26,7 +26,7 @@ import {
 } from '@janus-idp/backstage-plugin-orchestrator-common';
 
 import { exec, ExecException } from 'child_process';
-import { resolve } from 'path';
+import {join, resolve} from 'path';
 
 import { CloudEventService } from './CloudEventService';
 import { DataInputSchemaService } from './DataInputSchemaService';
@@ -452,10 +452,8 @@ async function setupSonataflowService(
   logger: Logger,
   jiraConfig?: JiraConfig,
 ) {
-    const sonataFlowResourcesAbsPath = resolve(
-        `${sonataFlowResourcesPath}/workflows`,
-    );
-    const launcher = ['docker run --add-host host.docker.internal:host-gateway'];
+  const sonataFlowResourcesAbsPath = resolve(join(sonataFlowResourcesPath, default_workflows_path));
+  const launcher = ['docker run --add-host host.docker.internal:host-gateway'];
   if (jiraConfig) {
     launcher.push(`--add-host jira.test:${jiraConfig.host}`);
   }

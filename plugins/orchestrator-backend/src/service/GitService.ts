@@ -10,13 +10,13 @@ export class GitService {
   private readonly logger: Logger;
 
   private readonly author = {
-    name: 'author',
-    email: 'test@backstage.io',
+    name: 'backstage-orchestrator',
+    email: 'orchestrator@backstage.io',
   };
 
   private readonly committer = {
-    name: 'comitter',
-    email: 'test@backstage.io',
+    name: 'backstage-orchestrator',
+    email: 'orchestrator@backstage.io',
   };
 
   constructor(logger: Logger, config: Config) {
@@ -32,21 +32,22 @@ export class GitService {
 
   async clone(repoURL: string, localPath: string): Promise<void> {
     this.logger.info(`cloning repo ${repoURL} into ${localPath}`);
-    return this.git.clone({
-      url: repoURL,
-      dir: localPath,
-      depth: 1,
-    });
+    return this.git
+      .clone({
+        url: repoURL,
+        dir: localPath,
+        depth: 1,
+      })
+      .then(() => this.git.checkout({ dir: localPath, ref: 'main' }));
   }
 
   async push(dir: string, message: string): Promise<void> {
     const branch = 'main';
     const force = true;
     const remote = 'origin';
-    const remoteRef = `refs/heads/${branch}`;
     const filepath = '.';
     this.git
-      .fetch({ dir })
+      .fetch({ remote, dir })
       .then(() => this.git.checkout({ dir, ref: branch }))
       .then(() => this.git.add({ dir, filepath }))
       .then(() =>
@@ -57,24 +58,28 @@ export class GitService {
           committer: this.committer,
         }),
       )
-      .then(() => this.git.push({ dir, remote, force, remoteRef }))
-      .then(() => this.logger.info('push completed'))
+      .then(() => this.git.push({ dir, remote, remoteRef: branch, force }))
+      .finally(() => this.logger.info('push completed'))
       .catch(ex => this.logger.error(ex));
   }
 
   async pull(localPath: string): Promise<void> {
-    const branch: string = 'origin/main';
+    const remoteBranch = 'origin/main';
+    const localBranch = 'main';
+    const remote = 'origin';
     this.git
-      .fetch({ remote: `origin`, dir: localPath })
+      .fetch({ remote, dir: localPath })
+      .then(() => this.git.checkout({ dir: localPath, ref: localBranch }))
       .then(() =>
         this.git.merge({
           dir: localPath,
-          theirs: branch,
+          ours: localBranch,
+          theirs: remoteBranch,
           author: this.author,
           committer: this.committer,
         }),
       )
-      .then(() => this.logger.info('merged !'))
+      .finally(() => this.logger.info('merge completed'))
       .catch(ex => this.logger.error(ex));
   }
 }
