@@ -113,10 +113,11 @@ catalog:
     #   rules:
     #     - allow: [User, Group]
 orchestrator:
-  baseUrl: http://localhost
-  port: 8899
   sonataFlowService:
+    baseUrl: http://localhost
+    port: 8899
     path: /tmp/orchestrator/repository
+    workflowsRepoUrl: https://github.com/tiagodolphine/backstage-orchestrator-workflows
     container: quay.io/kiegroup/kogito-swf-devmode-nightly:main-2023-08-30
     persistence:
       path: /home/kogito/persistence

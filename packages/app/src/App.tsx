@@ -34,6 +34,7 @@ import { apis } from './apis';
 import { entityPage } from './components/catalog/EntityPage';
 import { Root } from './components/Root';
 import { searchPage } from './components/search/SearchPage';
+import { OrchestratorPage } from '@janus-idp/backstage-plugin-orchestrator';
 
 const app = createApp({
   apis,
@@ -95,9 +96,10 @@ const routes = (
     </Route>
     <Route path="/settings" element={<UserSettingsPage />} />
     <Route path="/catalog-graph" element={<CatalogGraphPage />} />
+      <Route path="/orchestrator" element={<OrchestratorPage />} />
+
   </FlatRoutes>
 );
-
 const App = () => (
   <AppProvider>
     <AlertDisplay />
