@@ -186,7 +186,7 @@ export class WorkflowService {
   }
   async reloadWorkflows() {
     this.logger.info(`Reloading workflows from Git`);
-    const localPath = `${this.sonataFlowResourcesPath}`;
+    const localPath = this.sonataFlowResourcesPath;
     await fs.remove(localPath);
     await this.githubService.clone(this.repoURL, localPath);
   }

@@ -50,7 +50,6 @@
     "@backstage/types": "^1.1.1",
     "@janus-idp/backstage-plugin-orchestrator-common": "0.0.1",
     "@severlessworkflow/sdk-typescript": "^3.0.3",
-    "octokit": "^2.0.0",
     "cloudevents": "^8.0.0",
     "express": "^4.17.1",
     "express-promise-router": "^4.1.0",
