@@ -79,7 +79,7 @@ export async function createRouter(
     `Using SonataFlow Url of: ${sonataFlowBaseUrl}:${sonataFlowPort}`,
   );
   const sonataFlowResourcesPath = config.getString(
-    'orchestrator.sonataFlowService.path',
+    'orchestrator.sonataFlowService.workflowsSource.localPath',
   );
   const sonataFlowServiceContainer =
     config.getOptionalString('orchestrator.sonataFlowService.container') ??

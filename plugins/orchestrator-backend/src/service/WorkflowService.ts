@@ -28,6 +28,7 @@ export class WorkflowService {
   private readonly logger: Logger;
   private readonly githubService: GitService;
   private readonly repoURL: string;
+  private readonly autoPush: boolean;
   constructor(
     openApiService: OpenApiService,
     dataInputSchemaService: DataInputSchemaService,
@@ -41,8 +42,12 @@ export class WorkflowService {
     this.logger = logger;
     this.githubService = new GitService(logger, config);
     this.repoURL = config.getString(
-      'orchestrator.sonataFlowService.workflowsRepoUrl',
+      'orchestrator.sonataFlowService.workflowsSource.gitRepositoryUrl',
     );
+    this.autoPush =
+      config.getOptionalBoolean(
+        'orchestrator.sonataFlowService.workflowsSource.autoPush',
+      ) ?? false;
   }
 
   async saveWorkflowDefinition(item: WorkflowItem): Promise<WorkflowItem> {
@@ -57,10 +62,12 @@ export class WorkflowService {
 
     await this.saveFile(definitionsPath, item.definition);
 
-    await this.githubService.push(
-      this.sonataFlowResourcesPath,
-      `new workflow changes ${definitionsPath}`,
-    );
+    if (this.autoPush) {
+      await this.githubService.push(
+        this.sonataFlowResourcesPath,
+        `new workflow changes ${definitionsPath}`,
+      );
+    }
 
     return item;
   }
@@ -109,10 +116,12 @@ export class WorkflowService {
     }
     await this.saveFile(path, openApi);
 
-    await this.githubService.push(
-      this.sonataFlowResourcesPath,
-      `new openapi changes ${path}`,
-    );
+    if (this.autoPush) {
+      await this.githubService.push(
+        this.sonataFlowResourcesPath,
+        `new openapi changes ${path}`,
+      );
+    }
   }
 
   async saveDataInputSchema(
