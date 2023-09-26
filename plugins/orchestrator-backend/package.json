@@ -49,6 +49,7 @@
     "@backstage/plugin-scaffolder-node": "^0.2.3",
     "@backstage/types": "^1.1.1",
     "@janus-idp/backstage-plugin-orchestrator-common": "0.0.1",
+    "@octokit/rest": "^19.0.3",
     "@severlessworkflow/sdk-typescript": "^3.0.3",
     "cloudevents": "^8.0.0",
     "express": "^4.17.1",
