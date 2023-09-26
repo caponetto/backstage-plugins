@@ -69,9 +69,9 @@ export class ScaffolderService {
     const tmpDirs: string[] = new Array<string>();
     const stepOutput: { [outputName: string]: JsonValue } = {};
 
-    let workspacePath : string;
-    try{
-       const workingDirectory = await getWorkingDirectory(
+    let workspacePath: string;
+    try {
+      const workingDirectory = await getWorkingDirectory(
         this.config,
         this.logger,
       );
@@ -79,10 +79,13 @@ export class ScaffolderService {
         workingDirectory,
         actionExecutionContext.instanceId ?? randomUUID(),
       );
-    }catch(err){
-      this.logger.error(`Error getutuing workingDirecotury to execute action ${actionExecutionContext.actionId}`, err);
+    } catch (err) {
+      this.logger.error(
+        `Error getutuing workingDirecotury to execute action ${actionExecutionContext.actionId}`,
+        err,
+      );
       throw err;
-    }  
+    }
     const mockContext: ActionContext<JsonObject> = {
       input: actionExecutionContext.input,
       workspacePath: workspacePath,
