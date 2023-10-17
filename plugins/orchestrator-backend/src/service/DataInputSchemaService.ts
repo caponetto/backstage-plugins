@@ -71,6 +71,17 @@ interface ComposedJsonSchema {
   actionSchemas: JsonSchemaFile[];
 }
 
+interface ScaffolderTemplate {
+  url: string;
+  values: string[];
+}
+
+interface WorkflowFunction {
+  operationId: string;
+  ref: Specification.Functionref;
+  schema: OpenAPIV3.SchemaObject;
+}
+
 const JSON_SCHEMA_VERSION = 'http://json-schema.org/draft-04/schema#';
 const FETCH_TEMPLATE_ACTION_OPERATION_ID = 'fetch:template';
 
@@ -284,22 +295,93 @@ export class DataInputSchemaService {
     return { compositionSchema, actionSchemas };
   }
 
-  private async extractSchemaFromState(args: {
-    workflow: Specification.Workflow;
-    openApi: OpenAPIV3.Document;
-    actionDescriptor: WorkflowActionDescriptor;
-    workflowArgsMap: Map<string, string>;
+  private async extractTemplateFromSkeletonUrl(args: {
+    url: string;
     isConditional: boolean;
-  }): Promise<
-    { actionSchema: JsonSchemaFile; argsMap: Map<string, string> } | undefined
-  > {
+  }): Promise<ScaffolderTemplate | undefined> {
+    const githubPath = this.convertToGitHubApiUrl(args.url);
+    if (!githubPath) {
+      return undefined;
+    }
+
+    const skeletonValues =
+      await this.extractTemplateValuesFromSkeletonUrl(githubPath);
+
+    if (!skeletonValues && !args.isConditional) {
+      return undefined;
+    }
+
+    const skeletonUrl = `https://github.com/${githubPath.owner}/${githubPath.repo}/tree/${githubPath.ref}/${githubPath.path}`;
+    return {
+      values: skeletonValues,
+      url: skeletonUrl,
+    };
+  }
+
+  private isValidTemplateAction(
+    workflowArgsToFilter: WorkflowFunctionArgs,
+  ): boolean {
+    return (
+      workflowArgsToFilter.url &&
+      workflowArgsToFilter.values &&
+      Object.keys(workflowArgsToFilter.values).length
+    );
+  }
+
+  private resolveSchemaPropsToFilter(refSchema: OpenAPIV3.SchemaObject): {
+    [x: string]: OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject;
+  } {
+    return { ...(refSchema.properties ?? {}) };
+  }
+
+  private resolveSchemaProperties(
+    properties: OpenApiSchemaProperties,
+  ): OpenApiSchemaProperties | undefined {
+    return Object.keys(properties).length ? properties : undefined;
+  }
+
+  private resolveSchemaRequired(required: string[]): string[] | undefined {
+    return required.length ? required : undefined;
+  }
+
+  private extractFilteredArgId(args: {
+    map: Map<string, string>;
+    key: string;
+    value: string;
+    description: string;
+  }): string | undefined {
+    if (args.map.has(args.key)) {
+      if (args.map.get(args.key) === args.value) {
+        return undefined;
+      }
+      return this.sanitizeText({
+        text: `${args.description} ${args.key}`,
+        placeholder: '_',
+      });
+    }
+    return args.key;
+  }
+
+  private extractWorkflowFunction(args: {
+    workflow: Specification.Workflow;
+    actionDescriptor: WorkflowActionDescriptor;
+    openApi: OpenAPIV3.Document;
+  }): WorkflowFunction | undefined {
     const functionRef = args.actionDescriptor.action
       .functionRef as Specification.Functionref;
+
+    if (!functionRef.arguments) {
+      this.logger.info(
+        `No arguments found for function ${functionRef.refName}. Skipping...`,
+      );
+      return undefined;
+    }
 
     const operationId = this.extractOperationIdByWorkflowFunctionName({
       workflow: args.workflow,
       functionName: functionRef.refName,
     });
+
     if (!operationId) {
       this.logger.info(
         `No operation id found for function ${functionRef.refName}. Skipping...`,
@@ -311,6 +393,7 @@ export class DataInputSchemaService {
       openApi: args.openApi,
       operationId,
     });
+
     if (!refSchema) {
       this.logger.info(
         `The schema associated with ${operationId} could not be found. Skipping...`,
@@ -318,69 +401,78 @@ export class DataInputSchemaService {
       return undefined;
     }
 
-    if (!functionRef.arguments) {
+    return {
+      operationId,
+      ref: functionRef,
+      schema: refSchema,
+    };
+  }
+
+  private async extractSchemaFromState(args: {
+    workflow: Specification.Workflow;
+    openApi: OpenAPIV3.Document;
+    actionDescriptor: WorkflowActionDescriptor;
+    workflowArgsMap: Map<string, string>;
+    isConditional: boolean;
+  }): Promise<
+    { actionSchema: JsonSchemaFile; argsMap: Map<string, string> } | undefined
+  > {
+    const wfFunction = this.extractWorkflowFunction({
+      workflow: args.workflow,
+      actionDescriptor: args.actionDescriptor,
+      openApi: args.openApi,
+    });
+    if (!wfFunction) {
       return undefined;
     }
 
-    const schemaPropsToFilter = { ...(refSchema.properties ?? {}) };
+    const schemaPropsToFilter = this.resolveSchemaPropsToFilter(
+      wfFunction.schema,
+    );
     const workflowArgsToFilter = {
-      ...functionRef.arguments,
+      ...wfFunction.ref.arguments,
     } as WorkflowFunctionArgs;
 
-    if (operationId === FETCH_TEMPLATE_ACTION_OPERATION_ID) {
-      if (
-        !workflowArgsToFilter.url ||
-        !workflowArgsToFilter.values ||
-        !Object.keys(workflowArgsToFilter.values).length
-      ) {
+    if (wfFunction.operationId === FETCH_TEMPLATE_ACTION_OPERATION_ID) {
+      if (!this.isValidTemplateAction(workflowArgsToFilter)) {
         return undefined;
       }
 
-      const githubPath = this.convertToGitHubApiUrl(workflowArgsToFilter.url);
-      if (!githubPath) {
-        return undefined;
-      }
+      const template = await this.extractTemplateFromSkeletonUrl({
+        url: workflowArgsToFilter.url,
+        isConditional: args.isConditional,
+      });
 
-      const skeletonValues =
-        await this.extractTemplateValuesFromSkeletonUrl(githubPath);
-
-      if (!skeletonValues && !args.isConditional) {
-        return undefined;
-      }
-
-      if (skeletonValues?.length) {
-        const skeletonUrl = `https://github.com/${githubPath.owner}/${githubPath.repo}/tree/${githubPath.ref}/${githubPath.path}`;
-
-        skeletonValues.forEach(v => {
-          schemaPropsToFilter[v] = {
-            title: v,
-            description: `Extracted from ${skeletonUrl}`,
-            type: 'string',
-          };
-          schemaPropsToFilter[this.snakeCaseToCamelCase(v)] = {
-            title: this.snakeCaseToCamelCase(v),
-            description: `Extracted from ${skeletonUrl}`,
-            type: 'string',
-          };
-          schemaPropsToFilter[this.camelCaseToSnakeCase(v)] = {
-            title: this.camelCaseToSnakeCase(v),
-            description: `Extracted from ${skeletonUrl}`,
-            type: 'string',
-          };
-        });
-      }
+      template?.values.forEach(v => {
+        schemaPropsToFilter[v] = {
+          title: v,
+          description: `Extracted from ${template.url}`,
+          type: 'string',
+        };
+        schemaPropsToFilter[this.snakeCaseToCamelCase(v)] = {
+          title: this.snakeCaseToCamelCase(v),
+          description: `Extracted from ${template.url}`,
+          type: 'string',
+        };
+        schemaPropsToFilter[this.camelCaseToSnakeCase(v)] = {
+          title: this.camelCaseToSnakeCase(v),
+          description: `Extracted from ${template.url}`,
+          type: 'string',
+        };
+      });
 
       Object.keys(workflowArgsToFilter.values).forEach(k => {
         workflowArgsToFilter[k] = workflowArgsToFilter.values[k];
       });
     }
 
-    if (refSchema.oneOf?.length) {
-      const oneOfSchema = (refSchema.oneOf as OpenAPIV3.SchemaObject[]).find(
-        item =>
-          Object.keys(workflowArgsToFilter).some(arg =>
-            Object.keys(item.properties!).includes(arg),
-          ),
+    if (wfFunction.schema.oneOf?.length) {
+      const oneOfSchema = (
+        wfFunction.schema.oneOf as OpenAPIV3.SchemaObject[]
+      ).find(item =>
+        Object.keys(workflowArgsToFilter).some(arg =>
+          Object.keys(item.properties!).includes(arg),
+        ),
       );
       if (!oneOfSchema?.properties) {
         return undefined;
@@ -405,17 +497,14 @@ export class DataInputSchemaService {
       if (!schemaPropsToFilter.hasOwnProperty(argKey)) {
         continue;
       }
-      let argId;
-      if (argsMap.has(argKey)) {
-        if (argsMap.get(argKey) === argValue) {
-          continue;
-        }
-        argId = this.sanitizeText({
-          text: `${args.actionDescriptor.descriptor} ${argKey}`,
-          placeholder: '_',
-        });
-      } else {
-        argId = argKey;
+      const argId = this.extractFilteredArgId({
+        map: argsMap,
+        key: argKey,
+        value: argValue,
+        description: args.actionDescriptor.descriptor,
+      });
+      if (!argId) {
+        continue;
       }
       argsMap.set(argId, argValue);
 
@@ -426,10 +515,8 @@ export class DataInputSchemaService {
     }
 
     const updatedSchema = {
-      properties: Object.keys(filteredProperties).length
-        ? { ...filteredProperties }
-        : undefined,
-      required: filteredRequired.length ? [...filteredRequired] : undefined,
+      properties: this.resolveSchemaProperties(filteredProperties),
+      required: this.resolveSchemaRequired(filteredRequired),
     };
 
     if (!updatedSchema.properties && !args.isConditional) {
