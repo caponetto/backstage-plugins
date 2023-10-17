@@ -109,16 +109,54 @@ export class DataInputSchemaService {
     this.octokit = new Octokit({ auth: githubToken });
   }
 
+  private resolveObject<T>(obj: T | undefined): T {
+    return { ...(obj ?? {}) } as T;
+  }
+
+  private resolveAnyToArray<T>(value: any): T[] {
+    if (Array.isArray(value)) {
+      return this.resolveArray(value);
+    }
+    return [];
+  }
+
+  private resolveArray<T>(arr: T[] | undefined): T[] {
+    return [...(arr ?? [])] as T[];
+  }
+
+  private resolveObjectIfNotEmpty<T>(obj: T | undefined): T | undefined {
+    return Object.keys(obj ?? {}).length ? obj : undefined;
+  }
+
+  private resolveArrayIfNotEmpty<T>(arr: T[]): T[] | undefined {
+    return arr.length ? arr : undefined;
+  }
+
+  private resolveTransitionName(d: Transitiondatacondition): string {
+    return typeof d.transition === 'string'
+      ? d.transition
+      : d.transition.nextState;
+  }
+
+  private resolveSingleConditionalSchema(
+    conditionalActionSchemas: JsonSchemaFile[],
+  ): JsonSchemaFile | undefined {
+    if (
+      conditionalActionSchemas.length === 1 &&
+      this.resolveObjectIfNotEmpty(
+        conditionalActionSchemas[0].jsonSchema.properties,
+      )
+    ) {
+      return conditionalActionSchemas[0];
+    }
+    return undefined;
+  }
+
   public async generate(args: {
     definition: WorkflowDefinition;
     openApi: OpenAPIV3.Document;
   }): Promise<ComposedJsonSchema | null> {
     const workflow = args.definition as Specification.Workflow;
-
-    if (!workflow.states.length) {
-      this.logger.info(`No state found on workflow. Skipping...`);
-      return null;
-    }
 
     const actionSchemas: JsonSchemaFile[] = [];
     const workflowArgsMap = new Map<string, string>();
@@ -134,55 +172,34 @@ export class DataInputSchemaService {
 
       if (state.type === 'switch') {
         const dataConditions = (state as Databasedswitchstate).dataConditions;
-        if (!dataConditions?.length) {
-          continue;
-        }
 
         const conditionalStateNames = dataConditions
-          .filter(d => (d as Transitiondatacondition).transition)
-          .map(d => {
-            const transition = (d as Transitiondatacondition).transition;
-            if (typeof transition === 'string') {
-              return transition;
-            }
-            return transition.nextState;
-          });
+          ?.filter(d => (d as Transitiondatacondition).transition)
+          .map(d => this.resolveTransitionName(d as Transitiondatacondition));
 
         const conditionalStates = workflow.states.filter(s =>
           conditionalStateNames.includes(s.name!),
         );
 
-        const conditionalActionSchemas: JsonSchemaFile[] = [];
-        for (const conditionalState of conditionalStates) {
-          stateHandled.add(conditionalState.name!);
+        const { conditionalActionSchemas, conditionalStatesHandled } =
+          await this.extractConditionalSchemas({
+            workflow,
+            openApi: args.openApi,
+            conditionalStates,
+            workflowArgsMap,
+          });
 
-          for (const actionDescriptor of this.extractActionsFromState(
-            conditionalState,
-          )) {
-            const result = await this.extractSchemaFromState({
-              workflow: workflow,
-              openApi: args.openApi,
-              actionDescriptor,
-              workflowArgsMap,
-              isConditional: true,
-            });
-
-            if (!result) {
-              continue;
-            }
-
-            conditionalActionSchemas.push(result.actionSchema);
-          }
-        }
+        conditionalStatesHandled.forEach(s => stateHandled.add(s));
 
         if (conditionalActionSchemas.length <= 1) {
-          if (
-            conditionalActionSchemas.length &&
-            Object.keys(conditionalActionSchemas[0].jsonSchema.properties ?? {})
-              .length
-          ) {
-            actionSchemas.push(conditionalActionSchemas[0]);
+          const singleConditionalSchema = this.resolveSingleConditionalSchema(
+            conditionalActionSchemas,
+          );
+
+          if (singleConditionalSchema) {
+            actionSchemas.push(singleConditionalSchema);
           }
+
           continue;
         }
 
@@ -208,72 +225,34 @@ export class DataInputSchemaService {
           },
           required: [
             s.owner,
-            ...(s.jsonSchema.required
-              ? (s.jsonSchema.required as string[])
-              : []),
+            ...this.resolveAnyToArray<string>(s.jsonSchema.required),
           ],
         }));
 
         actionSchemas.push(oneOfSchema);
       } else {
-        for (const actionDescriptor of this.extractActionsFromState(state)) {
-          const result = await this.extractSchemaFromState({
-            workflow,
-            openApi: args.openApi,
-            actionDescriptor,
-            workflowArgsMap,
-            isConditional: false,
-          });
-
-          if (!result) {
-            continue;
-          }
-
-          const { actionSchema, argsMap } = result;
-
-          argsMap.forEach((v, k) => {
-            workflowArgsMap.set(k, v);
-          });
-
-          actionSchemas.push(actionSchema);
-        }
-      }
-    }
-
-    const workflowVariableSet = this.extractVariablesFromWorkflow(workflow);
-
-    if (!actionSchemas.length && !workflowVariableSet.size) {
-      return null;
-    }
-
-    if (workflowVariableSet.size) {
-      const additionalInputTitle = 'Additional input data';
-      const variableSetSchema = this.buildJsonSchemaSkeleton({
-        owner: 'Workflow',
-        workflowId: workflow.id,
-        title: additionalInputTitle,
-        filename: this.sanitizeText({
-          text: additionalInputTitle,
-          placeholder: '_',
-        }),
-      });
-
-      Array.from(workflowVariableSet)
-        .filter(v => !workflowArgsMap.get(v))
-        .forEach(item => {
-          variableSetSchema.jsonSchema.properties = {
-            ...(variableSetSchema.jsonSchema.properties ?? {}),
-            [item]: {
-              title: item,
-              type: 'string',
-              description: 'Extracted from the Workflow definition',
-            },
-          };
+        const actionSchemasFromState = await this.extractSchemasFromStates({
+          workflow: workflow,
+          openApi: args.openApi,
+          state,
+          workflowArgsMap,
         });
 
-      if (Object.keys(variableSetSchema.jsonSchema.properties ?? {}).length) {
-        actionSchemas.push(variableSetSchema);
+        actionSchemas.push(...actionSchemasFromState);
       }
+    }
+
+    const variableSetSchema = this.extractAdditionalSchemaFromWorkflow({
+      workflow,
+      workflowArgsMap,
+    });
+
+    if (variableSetSchema) {
+      actionSchemas.push(variableSetSchema);
+    }
+
+    if (!actionSchemas.length) {
+      return null;
     }
 
     const compositionSchema = this.buildJsonSchemaSkeleton({
@@ -283,7 +262,7 @@ export class DataInputSchemaService {
 
     actionSchemas.forEach(actionSchema => {
       compositionSchema.jsonSchema.properties = {
-        ...(compositionSchema.jsonSchema.properties ?? {}),
+        ...this.resolveObject(compositionSchema.jsonSchema.properties),
         [`${actionSchema.fileName}`]: {
           $ref: actionSchema.fileName,
           type: actionSchema.jsonSchema.type,
@@ -293,6 +272,107 @@ export class DataInputSchemaService {
     });
 
     return { compositionSchema, actionSchemas };
+  }
+
+  private extractAdditionalSchemaFromWorkflow(args: {
+    workflow: Specification.Workflow;
+    workflowArgsMap: Map<string, string>;
+  }): JsonSchemaFile | undefined {
+    const workflowVariableSet = this.extractVariablesFromWorkflow(
+      args.workflow,
+    );
+    if (!workflowVariableSet.size || !args.workflow.states.length) {
+      return undefined;
+    }
+
+    const additionalInputTitle = 'Additional input data';
+    const variableSetSchema = this.buildJsonSchemaSkeleton({
+      owner: 'Workflow',
+      workflowId: args.workflow.id,
+      title: additionalInputTitle,
+      filename: this.sanitizeText({
+        text: additionalInputTitle,
+        placeholder: '_',
+      }),
+    });
+
+    Array.from(workflowVariableSet)
+      .filter(v => !args.workflowArgsMap.get(v))
+      .forEach(item => {
+        variableSetSchema.jsonSchema.properties = {
+          ...this.resolveObject(variableSetSchema.jsonSchema.properties),
+          [item]: {
+            title: item,
+            type: 'string',
+            description: 'Extracted from the Workflow definition',
+          },
+        };
+      });
+
+    if (
+      !this.resolveObjectIfNotEmpty(variableSetSchema.jsonSchema.properties)
+    ) {
+      return undefined;
+    }
+
+    return variableSetSchema;
+  }
+
+  private async extractConditionalSchemas(args: {
+    workflow: Specification.Workflow;
+    openApi: OpenAPIV3.Document;
+    conditionalStates: WorkflowState[];
+    workflowArgsMap: Map<string, string>;
+  }): Promise<{
+    conditionalActionSchemas: JsonSchemaFile[];
+    conditionalStatesHandled: Set<string>;
+  }> {
+    const conditionalActionSchemas: JsonSchemaFile[] = [];
+    const conditionalStatesHandled = new Set<string>();
+
+    for (const conditionalState of args.conditionalStates) {
+      conditionalStatesHandled.add(conditionalState.name!);
+
+      const conditionalSchemas = await this.extractConditionalSchemasFromState({
+        workflow: args.workflow,
+        openApi: args.openApi,
+        conditionalState,
+        workflowArgsMap: args.workflowArgsMap,
+      });
+
+      conditionalActionSchemas.push(...conditionalSchemas);
+    }
+
+    return { conditionalActionSchemas, conditionalStatesHandled };
+  }
+
+  private async extractConditionalSchemasFromState(args: {
+    workflow: Specification.Workflow;
+    openApi: OpenAPIV3.Document;
+    conditionalState: WorkflowState;
+    workflowArgsMap: Map<string, string>;
+  }): Promise<JsonSchemaFile[]> {
+    const schemas: JsonSchemaFile[] = [];
+
+    const actions = this.extractActionsFromState(args.conditionalState);
+
+    for (const actionDescriptor of actions) {
+      const result = await this.extractSchemaFromState({
+        workflow: args.workflow,
+        openApi: args.openApi,
+        actionDescriptor,
+        workflowArgsMap: args.workflowArgsMap,
+        isConditional: true,
+      });
+
+      if (!result) {
+        continue;
+      }
+
+      schemas.push(result.actionSchema);
+    }
+
+    return schemas;
   }
 
   private async extractTemplateFromSkeletonUrl(args: {
@@ -311,11 +391,42 @@ export class DataInputSchemaService {
       return undefined;
     }
 
-    const skeletonUrl = `https://github.com/${githubPath.owner}/${githubPath.repo}/tree/${githubPath.ref}/${githubPath.path}`;
+    const fixedSkeletonUrl = `https://github.com/${githubPath.owner}/${githubPath.repo}/tree/${githubPath.ref}/${githubPath.path}`;
     return {
       values: skeletonValues,
-      url: skeletonUrl,
+      url: fixedSkeletonUrl,
     };
+  }
+
+  private async extractSchemasFromStates(args: {
+    workflow: Specification.Workflow;
+    openApi: OpenAPIV3.Document;
+    state: WorkflowState;
+    workflowArgsMap: Map<string, string>;
+  }): Promise<JsonSchemaFile[]> {
+    const schemas: JsonSchemaFile[] = [];
+    for (const actionDescriptor of this.extractActionsFromState(args.state)) {
+      const result = await this.extractSchemaFromState({
+        workflow: args.workflow,
+        openApi: args.openApi,
+        actionDescriptor,
+        workflowArgsMap: args.workflowArgsMap,
+        isConditional: false,
+      });
+
+      if (!result) {
+        continue;
+      }
+
+      const { actionSchema, argsMap } = result;
+
+      argsMap.forEach((v, k) => {
+        args.workflowArgsMap.set(k, v);
+      });
+
+      schemas.push(actionSchema);
+    }
+    return schemas;
   }
 
   private isValidTemplateAction(
@@ -326,22 +437,6 @@ export class DataInputSchemaService {
       workflowArgsToFilter.values &&
       Object.keys(workflowArgsToFilter.values).length
     );
-  }
-
-  private resolveSchemaPropsToFilter(refSchema: OpenAPIV3.SchemaObject): {
-    [x: string]: OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject;
-  } {
-    return { ...(refSchema.properties ?? {}) };
-  }
-
-  private resolveSchemaProperties(
-    properties: OpenApiSchemaProperties,
-  ): OpenApiSchemaProperties | undefined {
-    return Object.keys(properties).length ? properties : undefined;
-  }
-
-  private resolveSchemaRequired(required: string[]): string[] | undefined {
-    return required.length ? required : undefined;
   }
 
   private extractFilteredArgId(args: {
@@ -426,8 +521,8 @@ export class DataInputSchemaService {
       return undefined;
     }
 
-    const schemaPropsToFilter = this.resolveSchemaPropsToFilter(
-      wfFunction.schema,
+    const schemaPropsToFilter = this.resolveObject(
+      wfFunction.schema.properties,
     );
     const workflowArgsToFilter = {
       ...wfFunction.ref.arguments,
@@ -515,8 +610,8 @@ export class DataInputSchemaService {
     }
 
     const updatedSchema = {
-      properties: this.resolveSchemaProperties(filteredProperties),
-      required: this.resolveSchemaRequired(filteredRequired),
+      properties: this.resolveObjectIfNotEmpty(filteredProperties),
+      required: this.resolveArrayIfNotEmpty(filteredRequired),
     };
 
     if (!updatedSchema.properties && !args.isConditional) {
