@@ -86,8 +86,8 @@ const JSON_SCHEMA_VERSION = 'http://json-schema.org/draft-04/schema#';
 const FETCH_TEMPLATE_ACTION_OPERATION_ID = 'fetch:template';
 
 const Regex = {
-  VALUES_IN_SKELETON:
-    /\{\{[%-]?\s*values\.(\w+)\s*[%-]?}}|\{%-?\s*if\s*values\.(\w+)\s*(?:%-?})?/gi,
+  VALUES_IN_SKELETON: /\{\{[%-]?\s*values\.(\w+)\s*[%-]?}}/gi,
+  CONDITION_IN_SKELETON: /\{%-?\s*if\s*values\.(\w+)\s*(?:%-?})?/gi,
   GITHUB_URL:
     /^https:\/\/github\.com\/([^/]+)\/([^/]+)\/(?:tree|blob)\/([^/]+)\/(.+)$/,
   GITHUB_API_URL:
@@ -1062,8 +1062,17 @@ export class DataInputSchemaService {
   private async extractTemplateValuesFromGitHubFile(
     githubPath: GitHubPath,
   ): Promise<string[]> {
-    const matchesInPath = githubPath.path.matchAll(Regex.VALUES_IN_SKELETON);
-    const valuesInPath = Array.from(matchesInPath, match => match[1]);
+    const valueMatchesInPath = githubPath.path.matchAll(
+      Regex.VALUES_IN_SKELETON,
+    );
+    const conditionMatchesInPath = githubPath.path.matchAll(
+      Regex.CONDITION_IN_SKELETON,
+    );
+    const valuesInPath = Array.from(valueMatchesInPath, match => match[1]);
+    const conditionsInPath = Array.from(
+      conditionMatchesInPath,
+      match => match[1],
+    );
 
     try {
       const content = await this.octokit.repos.getContent({ ...githubPath });
@@ -1074,12 +1083,27 @@ export class DataInputSchemaService {
       const fileContent = this.decoder.decode(
         new Uint8Array(Buffer.from(fileData.content, fileData.encoding)),
       );
-      const matchesInContent = fileContent.matchAll(Regex.VALUES_IN_SKELETON);
+      const valueMatchesInContent = fileContent.matchAll(
+        Regex.VALUES_IN_SKELETON,
+      );
+      const conditionMatchesInContent = fileContent.matchAll(
+        Regex.CONDITION_IN_SKELETON,
+      );
       const valuesInContent = Array.from(
-        matchesInContent,
+        valueMatchesInContent,
         match => match[1] || match[2],
       );
-      return [...valuesInPath, ...valuesInContent];
+      const conditionsInContent = Array.from(
+        conditionMatchesInContent,
+        match => match[1],
+      );
+
+      return [
+        ...valuesInPath,
+        ...conditionsInPath,
+        ...valuesInContent,
+        ...conditionsInContent,
+      ];
     } catch (e) {
       this.logger.error(e);
     }
