@@ -35,8 +35,8 @@ import {
 import { useCancelableEffect } from '@kie-tools-core/react-hooks/dist/useCancelableEffect';
 import { ServerlessWorkflowCombinedEditorChannelApi } from '@kie-tools/serverless-workflow-combined-editor/dist/api';
 import { ServerlessWorkflowCombinedEditorEnvelopeApi } from '@kie-tools/serverless-workflow-combined-editor/dist/api/ServerlessWorkflowCombinedEditorEnvelopeApi';
-import { SwfCombinedEditorChannelApiImpl } from '@kie-tools/serverless-workflow-combined-editor/dist/impl/SwfCombinedEditorChannelApiImpl';
-import { SwfPreviewOptionsChannelApiImpl } from '@kie-tools/serverless-workflow-combined-editor/dist/impl/SwfPreviewOptionsChannelApiImpl';
+import { SwfCombinedEditorChannelApiImpl } from '@kie-tools/serverless-workflow-combined-editor/dist/channel/SwfCombinedEditorChannelApiImpl';
+import { SwfPreviewOptionsChannelApiImpl } from '@kie-tools/serverless-workflow-combined-editor/dist/channel/SwfPreviewOptionsChannelApiImpl';
 import {
   SwfCatalogSourceType,
   SwfServiceCatalogService,
@@ -112,7 +112,7 @@ const RefForwardingWorkflowEditor: ForwardRefRenderFunction<
     SwfServiceCatalogService[]
   >([]);
   const [canRender, setCanRender] = useState(false);
-  const [isReady, setReady] = useState(false);
+  const [ready, setReady] = useState(false);
   const navigate = useNavigate();
   const editWorkflowLink = useRouteRef(editWorkflowRouteRef);
   const viewWorkflowLink = useRouteRef(workflowDefinitionsRouteRef);
@@ -279,20 +279,21 @@ const RefForwardingWorkflowEditor: ForwardRefRenderFunction<
         defaultWidth: kind === EditorViewKind.AUTHORING ? '50%' : '100%',
       });
 
-    return new SwfCombinedEditorChannelApiImpl(
+    return new SwfCombinedEditorChannelApiImpl({
       defaultApiImpl,
-      undefined,
-      workflowEditorLanguageServiceChannelApiImpl,
-      workflowEditorPreviewOptionsChannelApiImpl,
-    );
+      swfLanguageServiceChannelApiImpl:
+        workflowEditorLanguageServiceChannelApiImpl,
+      swfPreviewOptionsChannelApiImpl:
+        workflowEditorPreviewOptionsChannelApiImpl,
+    });
   }, [embeddedFile, languageService, stateControl, kind]);
 
   useEffect(() => {
-    if (!isReady || !currentProcessInstance) {
+    if (!ready || !currentProcessInstance) {
       return;
     }
     colorNodes(currentProcessInstance);
-  }, [colorNodes, currentProcessInstance, isReady]);
+  }, [colorNodes, currentProcessInstance, ready]);
 
   useImperativeHandle(
     forwardedRef,
@@ -301,10 +302,10 @@ const RefForwardingWorkflowEditor: ForwardRefRenderFunction<
         validate,
         getContent,
         workflowItem: workflowItemPromise.data,
-        isReady,
+        isReady: ready,
       };
     },
-    [validate, getContent, workflowItemPromise.data, isReady],
+    [validate, getContent, workflowItemPromise.data, ready],
   );
 
   useCancelableEffect(
@@ -417,27 +418,42 @@ const RefForwardingWorkflowEditor: ForwardRefRenderFunction<
     ),
   );
 
-  return (
-    <PromiseStateWrapper
-      promise={workflowItemPromise}
-      resolved={workflowItem =>
-        canRender &&
-        embeddedFile && (
-          <EmbeddedEditor
-            key={currentProcessInstance?.id ?? workflowItem.definition.id}
-            ref={editorRef}
-            file={embeddedFile}
-            channelType={ChannelType.ONLINE}
-            editorEnvelopeLocator={envelopeLocator}
-            customChannelApiImpl={customEditorApi}
-            stateControl={stateControl}
-            locale={LOCALE}
-            isReady={isReady}
-          />
-        )
-      }
-    />
+  const embeddedEditorWrapper = useMemo(
+    () => (
+      <PromiseStateWrapper
+        promise={workflowItemPromise}
+        resolved={workflowItem =>
+          canRender &&
+          embeddedFile && (
+            <EmbeddedEditor
+              key={currentProcessInstance?.id ?? workflowItem.definition.id}
+              ref={editorRef}
+              file={embeddedFile}
+              channelType={ChannelType.ONLINE}
+              editorEnvelopeLocator={envelopeLocator}
+              customChannelApiImpl={customEditorApi}
+              stateControl={stateControl}
+              locale={LOCALE}
+              isReady={ready}
+            />
+          )
+        }
+      />
+    ),
+    [
+      canRender,
+      currentProcessInstance?.id,
+      customEditorApi,
+      editorRef,
+      embeddedFile,
+      envelopeLocator,
+      ready,
+      stateControl,
+      workflowItemPromise,
+    ],
   );
+
+  return embeddedEditorWrapper;
 };
 
 export const WorkflowEditor = forwardRef(RefForwardingWorkflowEditor);

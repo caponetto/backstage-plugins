@@ -21,7 +21,7 @@ const mockEntity: Entity = {
     description: 'backstage.io',
     annotations: {
       'backstage.io/kubernetes-id': 'backstage',
-      'janus-idp.io/tekton-enabled': 'true',
+      'janus-idp.io/tekton': 'app',
     },
   },
   spec: {
@@ -95,6 +95,18 @@ class MockKubernetesClient implements KubernetesApi {
 
   async getClusters(): Promise<{ name: string; authProvider: string }[]> {
     return [{ name: 'mock-cluster', authProvider: 'serviceAccount' }];
+  }
+
+  async getCluster(_clusterName: string): Promise<
+    | {
+        name: string;
+        authProvider: string;
+        oidcTokenProvider?: string;
+        dashboardUrl?: string;
+      }
+    | undefined
+  > {
+    return { name: 'mock-cluster', authProvider: 'serviceAccount' };
   }
 
   async proxy(_options: { clusterName: String; path: String }): Promise<any> {
