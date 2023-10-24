@@ -60,3 +60,8 @@ export interface WorkflowDataInputSchemaResponse {
 export interface WorkflowExecutionResponse {
   id: string;
 }
+
+export declare enum WorkflowType {
+  ASSESSMENT = 'assessment',
+  INFRASTRUCTURE = 'infrastructure',
+}
