@@ -114,9 +114,9 @@ catalog:
     #     - allow: [User, Group]
 orchestrator:
   sonataFlowService:
-    baseUrl: http://localhost
+    baseUrl: http://127.0.0.1
     port: 8080
-    autoStart: true
+    autoStart: false
     workflowsSource:
       gitRepositoryUrl: https://github.com/anludke/backstage-orchestrator-workflows
       localPath: /tmp/orchestrator/repository

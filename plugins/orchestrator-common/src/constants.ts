@@ -69,3 +69,6 @@ export const default_catalog_environment = 'development';
 export const default_editor_path = 'https://start.kubesmarts.org';
 
 export const default_workflows_path = 'workflows';
+
+export const ASSESSMENT_WORKFLOW_TYPE = 'workflow-type/assessment';
+export const INFRASTRUCTURE_WORKFLOW_TYPE = 'workflow-type/infrastructure';

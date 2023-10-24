@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { Table, TableColumn } from '@backstage/core-components';
@@ -10,8 +10,10 @@ import Pageview from '@material-ui/icons/Pageview';
 import PlayArrow from '@material-ui/icons/PlayArrow';
 
 import {
+  ASSESSMENT_WORKFLOW_TYPE,
   extractWorkflowFormatFromUri,
   WorkflowItem,
+  WorkflowType,
 } from '@janus-idp/backstage-plugin-orchestrator-common';
 
 import { orchestratorApiRef } from '../../api';
@@ -27,26 +29,73 @@ type WorkflowsTableProps = {
 
 export const WorkflowsTable = ({ items }: WorkflowsTableProps) => {
   const orchestratorApi = useApi(orchestratorApiRef);
-
   const navigate = useNavigate();
   const definitionLink = useRouteRef(workflowDefinitionsRouteRef);
   const executeWorkflowLink = useRouteRef(executeWorkflowRouteRef);
   const editLink = useRouteRef(editWorkflowRouteRef);
+  const [data, setData] = useState<Row[]>([]);
 
   interface Row {
     id: string;
     name: string;
+    lastRun: string;
+    lastRunStatus: string;
+    type: WorkflowType;
+    components: string;
     format: string;
   }
 
-  const columns: TableColumn[] = [{ title: 'Name', field: 'name' }];
-  const data: Row[] = items.map(item => {
-    return {
-      id: item.definition.id,
-      name: item.definition.name ?? '',
-      format: extractWorkflowFormatFromUri(item.uri),
-    };
-  });
+  const columns: TableColumn[] = [
+    { title: 'Name', field: 'name' },
+    { title: 'Last run', field: 'lastRun' },
+    { title: 'Last run status', field: 'lastRunStatus' },
+    { title: 'Type', field: 'type' },
+    { title: 'Components', field: 'components' },
+  ];
+
+  const getInitialState = useCallback(() => {
+    return items.map(item => {
+      return {
+        id: item.definition.id,
+        name: item.definition.name ?? '',
+        lastRun: '',
+        lastRunStatus: '',
+        type: item.definition.annotations?.find(
+          annotation => annotation === ASSESSMENT_WORKFLOW_TYPE,
+        )
+          ? WorkflowType.ASSESSMENT
+          : WorkflowType.INFRASTRUCTURE,
+        components: '---',
+        format: extractWorkflowFormatFromUri(item.uri),
+      };
+    });
+  }, [items]);
+
+  const load = useCallback(
+    (initData: Row[]) => {
+      const clonedData: Row[] = Object.assign([], initData);
+      orchestratorApi.getInstances().then(instances => {
+        for (const row of clonedData) {
+          const instancesById = instances.filter(
+            instance => instance.processId === row.id,
+          );
+          const lastRunInstance = instancesById.at(-1);
+          if (lastRunInstance) {
+            row.lastRun = lastRunInstance.start?.toString();
+            row.lastRunStatus = lastRunInstance.state;
+            row.components = instancesById.length.toString();
+          }
+        }
+        setData(clonedData);
+      });
+    },
+    [orchestratorApi],
+  );
+
+  useEffect(() => {
+    const initData = getInitialState();
+    load(initData);
+  }, [getInitialState, load]);
 
   const doView = useCallback(
     (rowData: Row) => {
@@ -91,7 +140,7 @@ export const WorkflowsTable = ({ items }: WorkflowsTableProps) => {
   return (
     <Table
       title=""
-      options={{ search: true, paging: false, actionsColumnIndex: 1 }}
+      options={{ search: true, paging: false, actionsColumnIndex: 5 }}
       columns={columns}
       data={data}
       actions={[
