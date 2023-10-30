@@ -8,6 +8,7 @@ import DeleteForever from '@material-ui/icons/DeleteForever';
 import Edit from '@material-ui/icons/Edit';
 import Pageview from '@material-ui/icons/Pageview';
 import PlayArrow from '@material-ui/icons/PlayArrow';
+import moment from 'moment';
 
 import {
   ASSESSMENT_WORKFLOW_TYPE,
@@ -73,20 +74,24 @@ export const WorkflowsTable = ({ items }: WorkflowsTableProps) => {
 
   const load = useCallback(
     (initData: Row[]) => {
-      const clonedData: Row[] = Object.assign([], initData);
+      let clonedData: Row[] = [];
       orchestratorApi.getInstances().then(instances => {
-        for (const row of clonedData) {
+        for (const init_row of initData) {
+          const row = { ...init_row };
           const instancesById = instances.filter(
             instance => instance.processId === row.id,
           );
           const lastRunInstance = instancesById.at(-1);
           if (lastRunInstance) {
-            row.lastRun = lastRunInstance.start?.toString();
+            row.lastRun = moment(lastRunInstance.start?.toString()).format(
+              'MMMM DD, YYYY',
+            );
             row.lastRunStatus = lastRunInstance.state;
             row.components = instancesById.length.toString();
           }
+          clonedData = [...(clonedData || []), row];
         }
-        setData(clonedData);
+        setData(clonedData ?? []);
       });
     },
     [orchestratorApi],
@@ -94,6 +99,7 @@ export const WorkflowsTable = ({ items }: WorkflowsTableProps) => {
 
   useEffect(() => {
     const initData = getInitialState();
+    setData(initData);
     load(initData);
   }, [getInitialState, load]);
 
@@ -143,6 +149,11 @@ export const WorkflowsTable = ({ items }: WorkflowsTableProps) => {
       options={{ search: true, paging: false, actionsColumnIndex: 5 }}
       columns={columns}
       data={data}
+      filters={[{ column: 'Type', type: 'select' }]}
+      initialState={{
+        filtersOpen: true,
+        filters: { Type: WorkflowType.ASSESSMENT },
+      }}
       actions={[
         {
           icon: PlayArrow,
