@@ -64,7 +64,7 @@ export const workflow_yaml_sample: WorkflowSample = {
 export const default_sonataflow_container_image =
   'quay.io/kiegroup/kogito-swf-devmode-nightly:main-2023-08-30';
 export const default_sonataflow_persistance_path = '/home/kogito/persistence';
-export const default_catalog_owner = 'infrastructure';
+export const default_catalog_owner = 'orchestrator';
 export const default_catalog_environment = 'development';
 export const default_editor_path = 'https://start.kubesmarts.org';
 

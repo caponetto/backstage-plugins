@@ -12,7 +12,6 @@ import { useApi, useRouteRef } from '@backstage/core-plugin-api';
 import { Button, Grid } from '@material-ui/core';
 
 import {
-  ASSESSMENT_WORKFLOW_TYPE,
   workflow_title,
   WorkflowItem,
 } from '@janus-idp/backstage-plugin-orchestrator-common';
@@ -23,13 +22,7 @@ import { BaseOrchestratorPage } from '../BaseOrchestratorPage/BaseOrchestratorPa
 import { OrchestratorSupportButton } from '../OrchestratorSupportButton/OrchestratorSupportButton';
 import { WorkflowsTable } from '../WorkflowDefinitionsListComponent';
 
-type OrchestratorPageProps = {
-  workflowType?: string;
-};
-
-export const OrchestratorPage = ({
-  workflowType = ASSESSMENT_WORKFLOW_TYPE,
-}: OrchestratorPageProps) => {
+export const OrchestratorPage = () => {
   const orchestratorApi = useApi(orchestratorApiRef);
   const navigate = useNavigate();
   const newWorkflowLink = useRouteRef(newWorkflowRef);
@@ -39,12 +32,7 @@ export const OrchestratorPage = ({
     WorkflowItem[]
   > => {
     const data = await orchestratorApi.listWorkflows();
-    return data.items.filter(
-      workflow =>
-        workflow.definition.annotations?.find(
-          annotation => annotation === workflowType,
-        ),
-    );
+    return data.items;
   }, []);
 
   const isReady = useMemo(() => !loading && !error, [loading, error]);
