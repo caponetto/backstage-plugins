@@ -76,7 +76,7 @@ export const AssessmentResultViewer = (props: AssessmentResultViewerProps) => {
     items: WorkflowOption | WorkflowOption[],
   ) => {
     return (
-      <Accordion {...accordionProps(items)}>
+      <Accordion key={category} {...accordionProps(items)}>
         <AccordionSummary
           expandIcon={<ExpandMore />}
           aria-controls="panel1a-content"
