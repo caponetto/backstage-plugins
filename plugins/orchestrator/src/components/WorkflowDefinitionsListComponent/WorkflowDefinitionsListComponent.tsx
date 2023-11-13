@@ -74,8 +74,8 @@ export const WorkflowsTable = ({ items }: WorkflowsTableProps) => {
 
   const load = useCallback(
     (initData: Row[]) => {
-      let clonedData: Row[] = [];
       orchestratorApi.getInstances().then(instances => {
+        const clonedData: Row[] = [];
         for (const init_row of initData) {
           const row = { ...init_row };
           const instancesById = instances.filter(
@@ -89,9 +89,9 @@ export const WorkflowsTable = ({ items }: WorkflowsTableProps) => {
             row.lastRunStatus = lastRunInstance.state;
             row.components = instancesById.length.toString();
           }
-          clonedData = [...(clonedData || []), row];
+          clonedData.push(row);
         }
-        setData(clonedData ?? []);
+        setData(clonedData);
       });
     },
     [orchestratorApi],
