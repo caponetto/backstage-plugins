@@ -1,6 +1,6 @@
 import { cacheExchange, Client, fetchExchange } from '@urql/core';
 
-import { WorkflowDefinition } from '@janus-idp/backstage-plugin-orchestrator-common/src/types';
+import { WorkflowDefinition } from '@janus-idp/backstage-plugin-orchestrator-common';
 
 import { ErrorBuilder } from '../helpers/errorBuilder';
 import { BackendExecCtx } from '../types/backendExecCtx';
