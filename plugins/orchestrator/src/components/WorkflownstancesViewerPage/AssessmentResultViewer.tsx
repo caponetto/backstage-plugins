@@ -96,7 +96,7 @@ export const AssessmentResultViewer = (props: AssessmentResultViewerProps) => {
       output === undefined ||
       output?.workflowdata?.workflowOptions === undefined
     )
-      return <></>;
+      return null;
     const rows = Object.entries(output.workflowdata.workflowOptions).map(
       ([key, value]) =>
         workflowOptions(key, value as WorkflowOption | WorkflowOption[]),

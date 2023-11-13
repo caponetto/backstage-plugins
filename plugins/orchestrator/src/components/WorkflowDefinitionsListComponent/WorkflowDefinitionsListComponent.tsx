@@ -145,7 +145,6 @@ export const WorkflowsTable = ({ items }: WorkflowsTableProps) => {
 
   return (
     <Table
-      title=""
       options={{ search: true, paging: false, actionsColumnIndex: 5 }}
       columns={columns}
       data={data}
