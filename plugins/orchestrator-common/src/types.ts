@@ -61,7 +61,7 @@ export interface WorkflowExecutionResponse {
   id: string;
 }
 
-export enum WorkflowType {
+export enum WorkflowCategory {
   ASSESSMENT = 'assessment',
   INFRASTRUCTURE = 'infrastructure',
 }

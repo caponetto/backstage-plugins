@@ -23,8 +23,8 @@ import {
   default_catalog_owner,
   orchestrator_service_ready_topic,
   workflow_type,
+  WorkflowCategory,
   WorkflowItem,
-  WorkflowType,
 } from '@janus-idp/backstage-plugin-orchestrator-common';
 
 export class OrchestratorEntityProvider
@@ -153,11 +153,11 @@ export class OrchestratorEntityProvider
   ): TemplateEntityV1beta3[] {
     return items.map(i => {
       const sanitizedId = i.definition.id.replace(/ /g, '_');
-      const category: WorkflowType = i.definition.annotations?.find(
+      const category: WorkflowCategory = i.definition.annotations?.find(
         annotation => annotation === ASSESSMENT_WORKFLOW_TYPE,
       )
-        ? WorkflowType.ASSESSMENT
-        : WorkflowType.INFRASTRUCTURE;
+        ? WorkflowCategory.ASSESSMENT
+        : WorkflowCategory.INFRASTRUCTURE;
       return {
         apiVersion: 'scaffolder.backstage.io/v1beta3',
         kind: 'Template',

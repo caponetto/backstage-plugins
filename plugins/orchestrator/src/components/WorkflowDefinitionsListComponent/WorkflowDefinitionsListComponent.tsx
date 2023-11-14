@@ -13,8 +13,8 @@ import moment from 'moment';
 import {
   ASSESSMENT_WORKFLOW_TYPE,
   extractWorkflowFormatFromUri,
+  WorkflowCategory,
   WorkflowItem,
-  WorkflowType,
 } from '@janus-idp/backstage-plugin-orchestrator-common';
 
 import { orchestratorApiRef } from '../../api';
@@ -41,7 +41,7 @@ export const WorkflowsTable = ({ items }: WorkflowsTableProps) => {
     name: string;
     lastRun: string;
     lastRunStatus: string;
-    type: WorkflowType;
+    type: WorkflowCategory;
     components: string;
     format: string;
   }
@@ -54,6 +54,22 @@ export const WorkflowsTable = ({ items }: WorkflowsTableProps) => {
     { title: 'Components', field: 'components' },
   ];
 
+  const getInitFormState = () => {
+    const assessmentExist = !!items.find(
+      item =>
+        item.definition.annotations?.find(
+          annotation => annotation === ASSESSMENT_WORKFLOW_TYPE,
+        ),
+    );
+    return {
+      filtersOpen: true,
+      filters: assessmentExist
+        ? { Type: WorkflowCategory.ASSESSMENT }
+        : undefined,
+    };
+  };
+  const [initTableState, __] = useState(getInitFormState());
+
   const getInitialState = useCallback(() => {
     return items.map(item => {
       return {
@@ -64,15 +80,15 @@ export const WorkflowsTable = ({ items }: WorkflowsTableProps) => {
         type: item.definition.annotations?.find(
           annotation => annotation === ASSESSMENT_WORKFLOW_TYPE,
         )
-          ? WorkflowType.ASSESSMENT
-          : WorkflowType.INFRASTRUCTURE,
+          ? WorkflowCategory.ASSESSMENT
+          : WorkflowCategory.INFRASTRUCTURE,
         components: '---',
         format: extractWorkflowFormatFromUri(item.uri),
       };
     });
   }, [items]);
 
-  const load = useCallback(
+  const loadFromInstances = useCallback(
     (initData: Row[]) => {
       orchestratorApi.getInstances().then(instances => {
         const clonedData: Row[] = [];
@@ -100,8 +116,8 @@ export const WorkflowsTable = ({ items }: WorkflowsTableProps) => {
   useEffect(() => {
     const initData = getInitialState();
     setData(initData);
-    load(initData);
-  }, [getInitialState, load]);
+    loadFromInstances(initData);
+  }, [getInitialState, loadFromInstances]);
 
   const doView = useCallback(
     (rowData: Row) => {
@@ -149,10 +165,7 @@ export const WorkflowsTable = ({ items }: WorkflowsTableProps) => {
       columns={columns}
       data={data}
       filters={[{ column: 'Type', type: 'select' }]}
-      initialState={{
-        filtersOpen: true,
-        filters: { Type: WorkflowType.ASSESSMENT },
-      }}
+      initialState={initTableState}
       actions={[
         {
           icon: PlayArrow,
