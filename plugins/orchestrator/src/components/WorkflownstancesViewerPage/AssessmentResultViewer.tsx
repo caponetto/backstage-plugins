@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 
 import { InfoCard } from '@backstage/core-components';
+import { useRouteRef } from '@backstage/core-plugin-api';
 
 import {
   Accordion,
@@ -11,6 +12,8 @@ import {
   Typography,
 } from '@material-ui/core';
 import ExpandMore from '@material-ui/icons/ExpandMore';
+
+import { executeWorkflowRouteRef } from '../../routes';
 
 interface AssessmentResultViewerProps {
   result: Record<string, unknown> | string | undefined;
@@ -34,9 +37,7 @@ export const AssessmentResultViewer = (props: AssessmentResultViewerProps) => {
     return result;
   }, [result]);
 
-  const idToUrl = (id: string) => {
-    return `/orchestrator/workflows/${id}/execute`;
-  };
+  const executeWorkflowLink = useRouteRef(executeWorkflowRouteRef);
 
   const keyToTitle = (key: string) => {
     const title = key.replace(/([a-z])([A-Z])/g, '$1 $2');
@@ -50,21 +51,25 @@ export const AssessmentResultViewer = (props: AssessmentResultViewerProps) => {
   };
 
   const workflowLinks = (items: WorkflowOption | WorkflowOption[]) => {
-    if (!Array.isArray(items))
+    if (!Array.isArray(items)) {
+      const workflowOption: WorkflowOption = items;
       return (
         <>
-          <Link href={idToUrl((items as WorkflowOption).id)}>
-            {(items as WorkflowOption).name}
+          <Link href={executeWorkflowLink({ workflowId: workflowOption.id })}>
+            {workflowOption.name}
           </Link>
           &nbsp;&nbsp;
           <Chip label="Recommended" size="small" />
         </>
       );
+    }
     return items.map(item => {
       const workflowOption: WorkflowOption = item;
       return (
         <>
-          <Link href={idToUrl(workflowOption.id)}>{workflowOption.name}</Link>
+          <Link href={executeWorkflowLink({ workflowId: workflowOption.id })}>
+            {workflowOption.name}
+          </Link>
           <br />
         </>
       );
