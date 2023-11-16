@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { Table, TableColumn } from '@backstage/core-components';
@@ -54,7 +54,7 @@ export const WorkflowsTable = ({ items }: WorkflowsTableProps) => {
     { title: 'Components', field: 'components' },
   ];
 
-  const getInitFormState = () => {
+  const initTableState = useMemo(() => {
     const assessmentExist = !!items.find(
       item =>
         item.definition.annotations?.find(
@@ -67,10 +67,9 @@ export const WorkflowsTable = ({ items }: WorkflowsTableProps) => {
         ? { Type: WorkflowCategory.ASSESSMENT }
         : undefined,
     };
-  };
-  const [initTableState, __] = useState(getInitFormState());
+  }, [items]);
 
-  const getInitialState = useCallback(() => {
+  const getInitialState = useMemo(() => {
     return items.map(item => {
       return {
         id: item.definition.id,
@@ -114,7 +113,7 @@ export const WorkflowsTable = ({ items }: WorkflowsTableProps) => {
   );
 
   useEffect(() => {
-    const initData = getInitialState();
+    const initData = getInitialState;
     setData(initData);
     loadFromInstances(initData);
   }, [getInitialState, loadFromInstances]);
