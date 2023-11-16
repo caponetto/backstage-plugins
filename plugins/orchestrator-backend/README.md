@@ -21,7 +21,7 @@ export DATA_INDEX_URL=http://<server:port>/graphql/
 - Test the plugin to see if it returns deployed workflows.
 
 ```shell
-curl localhost:7007/api/orchestrator/dataIndexWorkflows | jq .
+curl localhost:7007/api/orchestrator/workflows/definitions | jq .
 ```
 
 - You should be able to see a response similar to this.
