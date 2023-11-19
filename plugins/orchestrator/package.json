@@ -69,7 +69,9 @@
   "devDependencies": {
     "@backstage/cli": "0.23.0",
     "@backstage/dev-utils": "1.0.22",
+    "@backstage/test-utils": "^1.4.4",
     "@janus-idp/cli": "1.4.0",
+    "@storybook/react": "^7.5.3",
     "@types/json-schema": "^7.0.12"
   },
   "peerDependencies": {
