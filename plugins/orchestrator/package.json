@@ -40,6 +40,7 @@
     "@backstage/core-components": "^0.13.6",
     "@backstage/core-plugin-api": "^1.7.0",
     "@backstage/errors": "^1.2.3",
+    "@backstage/plugin-catalog": "^1.15.1",
     "@backstage/plugin-scaffolder-common": "^1.4.2",
     "@backstage/plugin-scaffolder-react": "^1.5.1",
     "@backstage/types": "^1.1.1",
