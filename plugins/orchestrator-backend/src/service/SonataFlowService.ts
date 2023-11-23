@@ -92,6 +92,10 @@ export class SonataFlowService {
         const json = (await response.json()) as SonataFlowSource[];
         // Assuming only one source in the list
         return json.pop()?.uri;
+      } else {
+        this.logger.error(
+          `Response was NOT okay when fetch(${this.url}/management/processes/${workflowId}/sources). Received response: ${response}`,
+        );
       }
     } catch (error) {
       this.logger.error(`Error when fetching workflow uri: ${error}`);
@@ -110,6 +114,10 @@ export class SonataFlowService {
 
       if (response.ok) {
         return await response.text();
+      } else {
+        this.logger.error(
+          `Response was NOT okay when fetch(${this.url}/management/processes/${workflowId}/source). Received response: ${response}`,
+        );
       }
     } catch (error) {
       this.logger.error(`Error when fetching workflow source: ${error}`);
@@ -138,6 +146,10 @@ export class SonataFlowService {
       );
       if (response.ok) {
         return await response.json();
+      } else {
+        this.logger.error(
+          `Response was NOT okay when fetch(${this.url}/q/openapi.json). Received response: ${response}`,
+        );
       }
     } catch (error) {
       this.logger.error(`Error when fetching openapi: ${error}`);
@@ -176,6 +188,10 @@ export class SonataFlowService {
           }),
         );
         return items.filter((item): item is WorkflowItem => !!item);
+      } else {
+        this.logger.error(
+          `Response was NOT okay when fetch(${this.url}/management/processes). Received response: ${response}`,
+        );
       }
     } catch (error) {
       this.logger.error(`Error when fetching workflows: ${error}`);
@@ -252,6 +268,10 @@ export class SonataFlowService {
           }),
         );
         return items.filter((item): item is WorkflowOverview => !!item);
+      } else {
+        this.logger.error(
+          `Response was NOT okay when fetch(${this.url}/management/processes). Received response: ${response}`,
+        );
       }
     } catch (error) {
       this.logger.error(
