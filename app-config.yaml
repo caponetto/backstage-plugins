@@ -135,15 +135,3 @@ dynamicPlugins:
         - bindTarget: 'remotePlugins.Scaffolder.scaffolderPlugin.externalRoutes'
           bindMap:
             registerComponent: 'catalogImportPlugin.routes.importPage'
-
-orchestrator:
-  sonataFlowService:
-    baseUrl: http://localhost
-    port: 8080
-    autoStart: true
-    workflowsSource:
-      gitRepositoryUrl: https://github.com/tiagodolphine/backstage-orchestrator-workflows
-      localPath: /tmp/orchestrator/repository
-      autoPush: false
-  dataIndexService:
-    url: ${DATA_INDEX_URL}
