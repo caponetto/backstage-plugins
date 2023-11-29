@@ -1,5 +1,5 @@
 interface DataFormatter<Data, FormattedData> {
-  format(Data): FormattedData;
+  format(data: Data): FormattedData;
 }
 
 export default DataFormatter;
