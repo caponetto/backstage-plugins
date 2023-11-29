@@ -15,13 +15,16 @@ import validator from '@rjsf/validator-ajv8';
 import { JSONSchema7 } from 'json-schema';
 
 import {
+  ASSESSMENT_WORKFLOW_TYPE,
   workflow_title,
+  WorkflowCategory,
   WorkflowDataInputSchemaResponse,
 } from '@janus-idp/backstage-plugin-orchestrator-common';
 
 import { orchestratorApiRef } from '../../api';
 import {
   executeWorkflowRouteRef,
+  executeWorkflowWithBusinessKeyRouteRef,
   workflowInstanceRouteRef,
 } from '../../routes';
 import { BaseOrchestratorPage } from '../BaseOrchestratorPage/BaseOrchestratorPage';
@@ -38,7 +41,9 @@ interface ExecuteWorkflowPageProps {
 
 export const ExecuteWorkflowPage = (props: ExecuteWorkflowPageProps) => {
   const orchestratorApi = useApi(orchestratorApiRef);
-  const { workflowId } = useRouteRefParams(executeWorkflowRouteRef);
+  const { workflowId, businessKey } = useRouteRefParams(
+    executeWorkflowRouteRef,
+  );
   const [loading, setLoading] = useState(false);
   const [schemaResponse, setSchemaResponse] =
     useState<WorkflowDataInputSchemaResponse>();
@@ -72,6 +77,17 @@ export const ExecuteWorkflowPage = (props: ExecuteWorkflowPageProps) => {
     }
 
     setLoading(true);
+    const workflowType =
+      schemaResponse?.workflowItem.definition.annotations?.find(
+        annotation => annotation === ASSESSMENT_WORKFLOW_TYPE,
+      )
+        ? WorkflowCategory.ASSESSMENT
+        : WorkflowCategory.INFRASTRUCTURE;
+    if (workflowType === WorkflowCategory.ASSESSMENT) {
+      Object.assign(parameters, { businessKey: crypto.randomUUID() });
+    } else {
+      Object.assign(parameters, { businessKey: businessKey ?? '' });
+    }
     const response = await orchestratorApi.executeWorkflow({
       workflowId,
       parameters,
@@ -86,6 +102,7 @@ export const ExecuteWorkflowPage = (props: ExecuteWorkflowPageProps) => {
     orchestratorApi,
     schemaResponse,
     workflowId,
+    businessKey,
   ]);
 
   const onFormChanged = useCallback(
