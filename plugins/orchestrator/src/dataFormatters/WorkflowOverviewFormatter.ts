@@ -6,7 +6,7 @@ import {
   WorkflowOverview,
 } from '@janus-idp/backstage-plugin-orchestrator-common';
 
-import DataFormatterInterface from './DataFormatterInterface';
+import DataFormatter from './DataFormatter';
 
 const UNAVAILABLE = '---';
 
@@ -20,8 +20,6 @@ export interface FormattedWorkflowOverview {
   description: string;
   format: WorkflowFormat;
 }
-
-export interface FormattedWorkflowOverview {}
 
 const formatDuration = (milliseconds: number): string => {
   let sec = Math.round(milliseconds / 1000);
@@ -47,7 +45,7 @@ const formatDuration = (milliseconds: number): string => {
   return 'less than a sec';
 };
 
-const WorkflowOverviewFormatter: DataFormatterInterface<
+const WorkflowOverviewFormatter: DataFormatter<
   WorkflowOverview,
   FormattedWorkflowOverview
 > = {
