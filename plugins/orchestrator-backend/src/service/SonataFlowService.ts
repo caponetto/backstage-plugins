@@ -92,17 +92,17 @@ export class SonataFlowService {
     workflowId: string,
   ): Promise<string | undefined> {
     try {
-      const response = await executeWithRetry(() =>
-        fetch(`${this.url}/management/processes/${workflowId}/sources`),
-      );
+      const urlToFetch = `${this.url}/management/processes/${workflowId}/sources`;
+      const response = await executeWithRetry(() => fetch(urlToFetch));
 
       if (response.ok) {
         const json = (await response.json()) as SonataFlowSource[];
         // Assuming only one source in the list
         return json.pop()?.uri;
       }
+      const responseStr = JSON.stringify(response);
       this.logger.error(
-        `Response was NOT okay when fetch(${this.url}/management/processes/${workflowId}/sources). Received response: ${response}`,
+        `Response was NOT okay when fetch(${urlToFetch}). Received response: ${responseStr}`,
       );
     } catch (error) {
       this.logger.error(`Error when fetching workflow uri: ${error}`);
@@ -121,8 +121,9 @@ export class SonataFlowService {
       if (response.ok) {
         return await response.json();
       }
+      const responseStr = JSON.stringify(response);
       this.logger.error(
-        `Response was NOT okay when fetch(${urlToFetch}). Received response: ${response}`,
+        `Response was NOT okay when fetch(${urlToFetch}). Received response: ${responseStr}`,
       );
     } catch (error) {
       this.logger.error(`Error when fetching workflow process: ${error}`);
@@ -135,15 +136,15 @@ export class SonataFlowService {
     workflowId: string,
   ): Promise<string | undefined> {
     try {
-      const response = await executeWithRetry(() =>
-        fetch(`${this.url}/management/processes/${workflowId}/source`),
-      );
+      const urlToFetch = `${this.url}/management/processes/${workflowId}/source`;
+      const response = await executeWithRetry(() => fetch(urlToFetch));
 
       if (response.ok) {
         return await response.text();
       }
+      const responseStr = JSON.stringify(response);
       this.logger.error(
-        `Response was NOT okay when fetch(${this.url}/management/processes/${workflowId}/source). Received response: ${response}`,
+        `Response was NOT okay when fetch(${urlToFetch}). Received response: ${responseStr}`,
       );
     } catch (error) {
       this.logger.error(`Error when fetching workflow source: ${error}`);
@@ -167,14 +168,14 @@ export class SonataFlowService {
 
   public async fetchOpenApi(): Promise<OpenAPIV3.Document | undefined> {
     try {
-      const response = await executeWithRetry(() =>
-        fetch(`${this.url}/q/openapi.json`),
-      );
+      const urlToFetch = `${this.url}/q/openapi.json`;
+      const response = await executeWithRetry(() => fetch(urlToFetch));
       if (response.ok) {
         return await response.json();
       }
+      const responseStr = JSON.stringify(response);
       this.logger.error(
-        `Response was NOT okay when fetch(${this.url}/q/openapi.json). Received response: ${response}`,
+        `Response was NOT okay when fetch(${urlToFetch}). Received response: ${responseStr}`,
       );
     } catch (error) {
       this.logger.error(`Error when fetching openapi: ${error}`);
@@ -184,9 +185,8 @@ export class SonataFlowService {
 
   public async fetchWorkflows(): Promise<WorkflowItem[] | undefined> {
     try {
-      const response = await executeWithRetry(() =>
-        fetch(`${this.url}/management/processes`),
-      );
+      const urlToFetch = `${this.url}/management/processes`;
+      const response = await executeWithRetry(() => fetch(urlToFetch));
 
       if (response.ok) {
         const workflowIds = (await response.json()) as string[];
@@ -214,8 +214,9 @@ export class SonataFlowService {
         );
         return items.filter((item): item is WorkflowItem => !!item);
       }
+      const responseStr = JSON.stringify(response);
       this.logger.error(
-        `Response was NOT okay when fetch(${this.url}/management/processes). Received response: ${response}`,
+        `Response was NOT okay when fetch(${urlToFetch}). Received response: ${responseStr}`,
       );
     } catch (error) {
       this.logger.error(`Error when fetching workflows: ${error}`);
@@ -227,9 +228,8 @@ export class SonataFlowService {
     WorkflowOverview[] | undefined
   > {
     try {
-      const response = await executeWithRetry(() =>
-        fetch(`${this.url}/management/processes`),
-      );
+      const urlToFetch = `${this.url}/management/processes`;
+      const response = await executeWithRetry(() => fetch(urlToFetch));
 
       if (response.ok) {
         const workflowIds = (await response.json()) as string[];
@@ -243,8 +243,9 @@ export class SonataFlowService {
         );
         return items.filter((item): item is WorkflowOverview => !!item);
       }
+      const responseStr = JSON.stringify(response);
       this.logger.error(
-        `Response was NOT okay when fetch(${this.url}/management/processes). Received response: ${response}`,
+        `Response was NOT okay when fetch(${urlToFetch}). Received response: ${responseStr}`,
       );
     } catch (error) {
       this.logger.error(
