@@ -1,25 +1,13 @@
+import { Data } from 'dataclass';
 import moment from 'moment';
 
 import {
   extractWorkflowFormatFromUri,
+  WorkflowOverview as RawWorkflowOverview,
   WorkflowFormat,
-  WorkflowOverview,
 } from '@janus-idp/backstage-plugin-orchestrator-common';
 
-import DataFormatter from './DataFormatter';
-
 const UNAVAILABLE = '---';
-
-export interface FormattedWorkflowOverview {
-  id: string;
-  name: string;
-  lastTriggered: string;
-  lastRunStatus: string;
-  type: string;
-  avgDuration: string;
-  description: string;
-  format: WorkflowFormat;
-}
 
 const formatDuration = (milliseconds: number): string => {
   let sec = Math.round(milliseconds / 1000);
@@ -45,12 +33,17 @@ const formatDuration = (milliseconds: number): string => {
   return 'less than a sec';
 };
 
-const WorkflowOverviewFormatter: DataFormatter<
-  WorkflowOverview,
-  FormattedWorkflowOverview
-> = {
-  format: (data: WorkflowOverview): FormattedWorkflowOverview => {
-    return {
+class WorkflowOverview extends Data {
+  id: string = '';
+  name: string = '';
+  lastTriggered: string = '';
+  lastRunStatus: string = '';
+  type: string = '';
+  avgDuration: string = '';
+  description: string = '';
+  format: WorkflowFormat = 'yaml';
+  static from(data: RawWorkflowOverview): WorkflowOverview {
+    return WorkflowOverview.create<WorkflowOverview>({
       id: data.workflowId,
       name: data.name || UNAVAILABLE,
       lastTriggered: data.lastTriggeredMs
@@ -63,8 +56,8 @@ const WorkflowOverviewFormatter: DataFormatter<
         : UNAVAILABLE,
       description: data.description || UNAVAILABLE,
       format: data.uri ? extractWorkflowFormatFromUri(data.uri) : 'yaml',
-    };
-  },
-};
+    });
+  }
+}
 
-export default WorkflowOverviewFormatter;
+export default WorkflowOverview;

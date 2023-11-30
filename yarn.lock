@@ -16564,6 +16564,11 @@ data-urls@^3.0.2:
     whatwg-mimetype "^3.0.0"
     whatwg-url "^11.0.0"
 
+dataclass@^2.1.1:
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/dataclass/-/dataclass-2.1.1.tgz#a1e7ff119d709568120d718fbf9c5b14b30a00fd"
+  integrity sha512-UNG2qao2GaHrnVQtarekOjUt1BvU6vt1OUnYSp+3BuFNs+iKjiBmIz2cabXtP2ZjthM8n3ox1lRKrUxp4SKG9A==
+
 dataloader@^2.0.0:
   version "2.2.2"
   resolved "https://registry.yarnpkg.com/dataloader/-/dataloader-2.2.2.tgz#216dc509b5abe39d43a9b9d97e6e5e473dfbe3e0"

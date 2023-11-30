@@ -3,6 +3,7 @@
   "include": ["src", "dev"],
   "exclude": ["node_modules"],
   "compilerOptions": {
+    "useDefineForClassFields": true, // required for support of dataclass package see https://dataclass.js.org/guide/caveats.html
     "outDir": "../../dist-types/plugins/orchestrator",
     "rootDir": "."
   }
