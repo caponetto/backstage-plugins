@@ -52,7 +52,7 @@ export const orchestratorRootNextRouteRef = createSubRouteRef({
   path: '/next',
 });
 
-export const newExecuteWorkflowRouteRef = createSubRouteRef({
+export const nextExecuteWorkflowRouteRef = createSubRouteRef({
   id: 'orchestrator/next/workflows/execute',
   parent: orchestratorRootRouteRef,
   path: '/next/workflows/:workflowId/execute',
