@@ -30,6 +30,7 @@ export const ExecuteWorkflowPage = (props: ExecuteWorkflowPageProps) => {
   const [loading, setLoading] = useState(false);
   const [schemaResponse, setSchemaResponse] =
     useState<WorkflowDataInputSchemaResponse>();
+  // @ts-ignore:
   const [formState, setFormState] = useState(props.initialState);
 
   const navigate = useNavigate();
