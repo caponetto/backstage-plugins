@@ -12,9 +12,9 @@ import {
   ProcessInstance,
   WorkflowDefinition,
   WorkflowExecutionResponse,
+  WorkflowInfo,
   WorkflowItem,
   WorkflowOverview,
-  WorkflowProcess,
 } from '@janus-idp/backstage-plugin-orchestrator-common';
 
 import { spawn } from 'child_process';
@@ -111,9 +111,9 @@ export class SonataFlowService {
     return undefined;
   }
 
-  public async fetchWorkflowProcess(
+  public async fetchWorkflowInfo(
     workflowId: string,
-  ): Promise<WorkflowProcess | undefined> {
+  ): Promise<WorkflowInfo | undefined> {
     try {
       const urlToFetch = `${this.url}/management/processes/${workflowId}`;
       const response = await executeWithRetry(() => fetch(urlToFetch));
@@ -126,7 +126,7 @@ export class SonataFlowService {
         `Response was NOT okay when fetch(${urlToFetch}). Received response: ${responseStr}`,
       );
     } catch (error) {
-      this.logger.error(`Error when fetching workflow process: ${error}`);
+      this.logger.error(`Error when fetching workflow info: ${error}`);
     }
 
     return undefined;

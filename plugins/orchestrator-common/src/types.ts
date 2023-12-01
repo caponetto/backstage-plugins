@@ -76,7 +76,7 @@ export interface WorkflowOverview {
   description?: string;
 }
 
-export interface WorkflowProcess {
+export interface WorkflowInfo {
   id: string;
   type: string;
   name: string;

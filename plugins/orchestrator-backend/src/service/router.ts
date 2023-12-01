@@ -291,15 +291,15 @@ function setupInternalRoutes(
     let schema: JSONSchema7 | undefined = undefined;
 
     if (definition.dataInputSchema) {
-      const workflowProcess =
-        await sonataFlowService.fetchWorkflowProcess(workflowId);
+      const workflowInfo =
+        await sonataFlowService.fetchWorkflowInfo(workflowId);
 
-      if (!workflowProcess) {
-        res.status(500).send(`Couldn't fetch workflow process ${workflowId}`);
+      if (!workflowInfo) {
+        res.status(500).send(`Couldn't fetch workflow info ${workflowId}`);
         return;
       }
 
-      schema = workflowProcess.inputSchema;
+      schema = workflowInfo.inputSchema;
     }
 
     const response: WorkflowDataInputSchemaResponse = {
