@@ -11,7 +11,8 @@ import {
 } from '@material-ui/core';
 import CloseIcon from '@material-ui/icons/Close';
 
-import { WorkflowEditor } from '../WorkflowEditor';
+import { NewEditor } from '../WorkflowEditor/NewEditor';
+import { useWorkflowEditor } from '../WorkflowEditor/use-workflow-editor';
 import { WorkflowEditorView } from '../WorkflowEditor/WorkflowEditor';
 
 type OrchestratorWorkflowDialogProps = {
@@ -22,10 +23,6 @@ type OrchestratorWorkflowDialogProps = {
 } & WorkflowEditorView;
 
 const useStyles = makeStyles(_theme => ({
-  editor: {
-    height: '600px',
-    marginBottom: 20,
-  },
   closeBtn: {
     position: 'absolute',
     right: 8,
@@ -39,8 +36,11 @@ export const WorkflowDialog = (
   const { workflowId, title, open, close } = props;
   const classes = useStyles();
 
+  const { content, languageServer, workflowURI } =
+    useWorkflowEditor(workflowId);
+
   return (
-    <Dialog fullWidth maxWidth="lg" onClose={_ => close()} open={open}>
+    <Dialog fullWidth maxWidth="lg" onClose={close} open={open}>
       <DialogTitle>
         <Box>
           <Typography variant="h5">{title}</Typography>
@@ -54,9 +54,13 @@ export const WorkflowDialog = (
         </Box>
       </DialogTitle>
       <DialogContent>
-        <Box className={classes.editor}>
-          <WorkflowEditor {...props} workflowId={workflowId} />
-        </Box>
+        {content && languageServer && workflowURI && (
+          <NewEditor
+            content={content}
+            languageServer={languageServer}
+            workflowURI={workflowURI}
+          />
+        )}
       </DialogContent>
     </Dialog>
   );

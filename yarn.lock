@@ -6820,9 +6820,9 @@
     openapi-types "^7.0.1"
     path-browserify "^1.0.1"
 
-"@kie-tools/serverless-workflow-text-editor@0.32.0":
+"@kie-tools/serverless-workflow-text-editor@0.32.0", "@kie-tools/serverless-workflow-text-editor@^0.32.0":
   version "0.32.0"
-  resolved "https://registry.yarnpkg.com/@kie-tools/serverless-workflow-text-editor/-/serverless-workflow-text-editor-0.32.0.tgz#b4ae1d584846d15b9e934e4451af2e598c734b15"
+  resolved "https://registry.npmjs.org/@kie-tools/serverless-workflow-text-editor/-/serverless-workflow-text-editor-0.32.0.tgz#b4ae1d584846d15b9e934e4451af2e598c734b15"
   integrity sha512-3//LVxU4nE09MMv+0GitblBf6LIBkVpQ5asYrjZTP5jsUy8BznX+tvGZKlgryByGD2SVI6Yfl/npWyC8n19mSQ==
   dependencies:
     "@kie-tools-core/editor" "0.32.0"
@@ -7817,7 +7817,7 @@
 
 "@patternfly/patternfly@^5.1.0":
   version "5.1.0"
-  resolved "https://registry.yarnpkg.com/@patternfly/patternfly/-/patternfly-5.1.0.tgz#1c02dff6785d87c222de8a5944b960dd6c0de760"
+  resolved "https://registry.npmjs.org/@patternfly/patternfly/-/patternfly-5.1.0.tgz#1c02dff6785d87c222de8a5944b960dd6c0de760"
   integrity sha512-wzVgL/0xPsmuRKWc6lMNEo5gDcTUtyU231eJSBTapOKXiwBOv2flvLEHPYLO6oDYXO+hwUrVgbcZFWMd1UlLwA==
 
 "@patternfly/react-charts@^7.1.1":
@@ -7863,7 +7863,7 @@
 
 "@patternfly/react-core@^5.1.1":
   version "5.1.1"
-  resolved "https://registry.yarnpkg.com/@patternfly/react-core/-/react-core-5.1.1.tgz#9f0c5578c400e8808c56f160f3dd02801c430d3f"
+  resolved "https://registry.npmjs.org/@patternfly/react-core/-/react-core-5.1.1.tgz#9f0c5578c400e8808c56f160f3dd02801c430d3f"
   integrity sha512-9DbgQMXYmF8A4aCNLKXwIN1H07SIPoPaVLvx+yiDuJfDx4Qi0T+H7j5cx0VfDfxuCpqea3POJWqBQn1HnwS4wQ==
   dependencies:
     "@patternfly/react-icons" "^5.1.1"
@@ -7905,7 +7905,7 @@
 
 "@patternfly/react-topology@^5.1.0":
   version "5.1.0"
-  resolved "https://registry.yarnpkg.com/@patternfly/react-topology/-/react-topology-5.1.0.tgz#75428154c3c4e7411f3baf6fc00fb8d6b6581ec9"
+  resolved "https://registry.npmjs.org/@patternfly/react-topology/-/react-topology-5.1.0.tgz#75428154c3c4e7411f3baf6fc00fb8d6b6581ec9"
   integrity sha512-Qzu7GMxqCsRvQj4RF2AHOGSp0nPpVuDE2xpdAaj/yCKz0cqHhvrwpC4+qyVL3mlqIs5qb+Fxm2d81Do7YIx3ig==
   dependencies:
     "@patternfly/react-core" "^5.1.1"
@@ -12751,9 +12751,9 @@
   integrity sha512-+0autS93xyXizIYiyL02FCY8N+KkKPhILhcUSA276HxzreZ16kl+cmwvV2qAM/PuCCwPXzOXOWhiPcw20uSFcA==
 
 "@types/react-dom@17.0.21", "@types/react-dom@<18.0.0", "@types/react-dom@^17", "@types/react-dom@^17.0.21":
-  version "17.0.24"
-  resolved "https://registry.yarnpkg.com/@types/react-dom/-/react-dom-17.0.24.tgz#23a1f2528d71d9a5b4ffa58788adde9b8f29d444"
-  integrity sha512-9TXTs2CPADeEQ4N5cnWRCqmOZN8O/nl1Dn11dWtj2faZEu0wJnx0it4N8/uAVGH7w2CJ/+sPcv2zMCXkqfeR9A==
+  version "17.0.25"
+  resolved "https://registry.npmjs.org/@types/react-dom/-/react-dom-17.0.25.tgz#e0e5b3571e1069625b3a3da2b279379aa33a0cb5"
+  integrity sha512-urx7A7UxkZQmThYA4So0NelOVjx3V4rNFVJwp0WZlbIK5eM4rNJDiN3R/E9ix0MBh6kAEojk/9YL+Te6D9zHNA==
   dependencies:
     "@types/react" "^17"
 
@@ -12797,7 +12797,7 @@
 
 "@types/react@*", "@types/react@17.0.68", "@types/react@>=16", "@types/react@^16.13.1 || ^17.0.0", "@types/react@^17", "@types/react@^17.0.68":
   version "17.0.71"
-  resolved "https://registry.yarnpkg.com/@types/react/-/react-17.0.71.tgz#3673d446ad482b1564e44bf853b3ab5bcbc942c4"
+  resolved "https://registry.npmjs.org/@types/react/-/react-17.0.71.tgz#3673d446ad482b1564e44bf853b3ab5bcbc942c4"
   integrity sha512-lfqOu9mp16nmaGRrS8deS2Taqhd5Ih0o92Te5Ws6I1py4ytHBcXLqh0YIqVsViqwVI5f+haiFM6hju814BzcmA==
   dependencies:
     "@types/prop-types" "*"
@@ -21244,7 +21244,7 @@ js-sha256@^0.9.0:
 
 js-yaml@=4.1.0, js-yaml@^4.0.0, js-yaml@^4.1.0:
   version "4.1.0"
-  resolved "https://registry.yarnpkg.com/js-yaml/-/js-yaml-4.1.0.tgz#c1fb65f8f5017901cdd2c951864ba18458a10602"
+  resolved "https://registry.npmjs.org/js-yaml/-/js-yaml-4.1.0.tgz#c1fb65f8f5017901cdd2c951864ba18458a10602"
   integrity sha512-wpxZs9NoxZaJESJGIZTyDEaYpl0FKSA+FB9aJiyemKhMwkxQg63h4T1KJgUGHpTqPDNRcmmYLugrRjJlBtWvRA==
   dependencies:
     argparse "^2.0.1"
@@ -30349,7 +30349,7 @@ vscode-languageserver-textdocument@^1.0.0, vscode-languageserver-textdocument@^1
 
 vscode-languageserver-types@3.16.0, vscode-languageserver-types@3.17.1, vscode-languageserver-types@^3.0.0, vscode-languageserver-types@^3.16.0, vscode-languageserver-types@^3.17.1:
   version "3.17.1"
-  resolved "https://registry.yarnpkg.com/vscode-languageserver-types/-/vscode-languageserver-types-3.17.1.tgz#c2d87fa7784f8cac389deb3ff1e2d9a7bef07e16"
+  resolved "https://registry.npmjs.org/vscode-languageserver-types/-/vscode-languageserver-types-3.17.1.tgz#c2d87fa7784f8cac389deb3ff1e2d9a7bef07e16"
   integrity sha512-K3HqVRPElLZVVPtMeKlsyL9aK0GxGQpvtAUTfX4k7+iJ4mc1M+JM+zQwkgGy2LzY0f0IAafe8MKqIkJrxfGGjQ==
 
 vscode-languageserver@^7.0.0:

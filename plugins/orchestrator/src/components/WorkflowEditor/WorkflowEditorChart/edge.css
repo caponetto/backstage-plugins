@@ -1,0 +1,11 @@
+.custom-edge--error {
+  stroke: #c9190b;
+}
+
+.custom-edge--comp {
+  stroke: #f0ab00;
+}
+
+.custom-edge--cond {
+  stroke: #3e8635;
+}
