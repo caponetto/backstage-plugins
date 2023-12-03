@@ -2,14 +2,7 @@ import React, { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAsync } from 'react-use';
 
-import {
-  Content,
-  ErrorBoundary,
-  Header,
-  InfoCard,
-  Page,
-  Progress,
-} from '@backstage/core-components';
+import { InfoCard, Progress } from '@backstage/core-components';
 import {
   useApi,
   useRouteRef,
@@ -24,12 +17,12 @@ import {
   executeWorkflowRouteRef,
   workflowDefinitionsRouteRef,
 } from '../../routes';
+import { BaseOrchestratorPage } from '../next/BaseOrchestratorPage';
 import { EditorViewKind, WorkflowEditor } from '../WorkflowEditor';
 import WorkflowDefinitionDetailsCard from './WorkflowDefinitionDetailsCard';
 
 export const WorkflowDefinitionViewerPage = () => {
   const { workflowId, format } = useRouteRefParams(workflowDefinitionsRouteRef);
-
   const orchestratorApi = useApi(orchestratorApiRef);
   const { loading, value: workflowOverview } = useAsync(() =>
     orchestratorApi.getWorkflowOverview(workflowId),
@@ -43,58 +36,53 @@ export const WorkflowDefinitionViewerPage = () => {
     [format],
   );
 
-  const onExecute = () => {
+  const handleExecute = () => {
     navigate(executeWorkflowLink({ workflowId }));
   };
 
-  const onEdit = () => {
+  const handleEdit = () => {
     navigate(editWorkflowLink({ workflowId, format }));
   };
 
   return (
-    <ErrorBoundary>
+    <BaseOrchestratorPage
+      title={workflowOverview?.name || workflowId}
+      type="workflows"
+      typeLink="/orchestrator"
+    >
       {loading && <Progress />}
-      <Page themeId="tool">
-        <Header
-          title={workflowOverview?.name || ''}
-          type="workflows"
-          typeLink="/orchestrator"
-        />
-        <Content>
-          <Grid container spacing={2} direction="column" wrap="nowrap">
-            <Grid container justifyContent="flex-end" item spacing={1}>
-              <Grid item>
-                <Button variant="contained" color="primary" onClick={onEdit}>
-                  Edit
-                </Button>
-              </Grid>
-              <Grid item>
-                <Button variant="outlined" color="primary" onClick={onExecute}>
-                  Run
-                </Button>
-              </Grid>
-            </Grid>
-            <Grid item>
-              {workflowOverview && (
-                <WorkflowDefinitionDetailsCard
-                  workflowOverview={workflowOverview}
-                />
-              )}
-            </Grid>
-            <Grid item>
-              <InfoCard variant="fullHeight">
-                <div style={{ height: '600px' }}>
-                  <WorkflowEditor
-                    kind={EditorViewKind.EXTENDED_DIAGRAM_VIEWER}
-                    workflowId={workflowId}
-                    format={workflowFormat}
-                  />
-                </div>
-              </InfoCard>
-            </Grid>
+      <Grid container spacing={2} direction="column" wrap="nowrap">
+        <Grid container justifyContent="flex-end" item spacing={1}>
+          <Grid item>
+            <Button variant="contained" color="primary" onClick={handleEdit}>
+              Edit
+            </Button>
           </Grid>
-        </Content>
-      </Page>
-    </ErrorBoundary>
+          <Grid item>
+            <Button variant="outlined" color="primary" onClick={handleExecute}>
+              Run
+            </Button>
+          </Grid>
+        </Grid>
+        <Grid item>
+          {workflowOverview && (
+            <WorkflowDefinitionDetailsCard
+              workflowOverview={workflowOverview}
+            />
+          )}
+        </Grid>
+        <Grid item>
+          <InfoCard variant="fullHeight">
+            <div style={{ height: '600px' }}>
+              <WorkflowEditor
+                kind={EditorViewKind.EXTENDED_DIAGRAM_VIEWER}
+                workflowId={workflowId}
+                format={workflowFormat}
+              />
+            </div>
+          </InfoCard>
+        </Grid>
+      </Grid>
+    </BaseOrchestratorPage>
   );
 };

@@ -19,7 +19,7 @@ const WorkflowDefinitionDetailsCard = ({
     [workflowOverview],
   );
   return (
-    <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
+    <div style={{ maxHeight: '18rem', overflowY: 'auto' }}>
       <InfoCard title="Details">
         <Grid container spacing={3} alignContent="flex-start">
           <Grid container item spacing={3} md={4} alignContent="flex-start">
