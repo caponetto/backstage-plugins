@@ -64,6 +64,7 @@ export const ExecuteWorkflowPage = (props: ExecuteWorkflowPageProps) => {
       });
       navigate(instanceLink({ instanceId: response.id }));
     } catch (err) {
+      // eslint-disable-next-line
       console.error(err);
     }
     setIsExecuting(false);
