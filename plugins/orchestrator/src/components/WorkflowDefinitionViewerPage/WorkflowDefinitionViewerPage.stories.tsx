@@ -20,7 +20,7 @@ const meta = {
   decorators: [
     (Story, context) => {
       const api = new MockOrchestratorClient({
-        getWorkflowOverviewResonse: Promise.resolve(
+        getWorkflowOverviewResponse: Promise.resolve(
           (context.args as { workflowOverview: WorkflowOverview })
             .workflowOverview,
         ),
@@ -70,4 +70,9 @@ export const LongDesription: Story = {
       description: veryLongString,
     },
   },
+};
+
+export const Loading: Story = {
+  name: 'Loading',
+  args: {},
 };

@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAsync } from 'react-use';
 
-import { InfoCard, Progress } from '@backstage/core-components';
+import { InfoCard } from '@backstage/core-components';
 import {
   useApi,
   useRouteRef,
@@ -10,6 +10,7 @@ import {
 } from '@backstage/core-plugin-api';
 
 import { Button, Grid } from '@material-ui/core';
+import { Skeleton } from '@material-ui/lab';
 
 import { orchestratorApiRef } from '../../api';
 import {
@@ -24,10 +25,9 @@ import WorkflowDefinitionDetailsCard from './WorkflowDefinitionDetailsCard';
 export const WorkflowDefinitionViewerPage = () => {
   const { workflowId, format } = useRouteRefParams(workflowDefinitionsRouteRef);
   const orchestratorApi = useApi(orchestratorApiRef);
-  const { loading, value: workflowOverview } = useAsync(() =>
+  const { value: workflowOverview } = useAsync(() =>
     orchestratorApi.getWorkflowOverview(workflowId),
   );
-
   const navigate = useNavigate();
   const executeWorkflowLink = useRouteRef(executeWorkflowRouteRef);
   const editWorkflowLink = useRouteRef(editWorkflowRouteRef);
@@ -44,35 +44,44 @@ export const WorkflowDefinitionViewerPage = () => {
     navigate(editWorkflowLink({ workflowId, format }));
   };
 
+  const loading = !workflowOverview;
+
   return (
     <BaseOrchestratorPage
       title={workflowOverview?.name || workflowId}
       type="workflows"
       typeLink="/orchestrator"
     >
-      {loading && <Progress />}
       <Grid container spacing={2} direction="column" wrap="nowrap">
-        <Grid container justifyContent="flex-end" item spacing={1}>
+        <Grid container item justifyContent="flex-end" spacing={1}>
           <Grid item>
-            <Button variant="contained" color="primary" onClick={handleEdit}>
-              Edit
-            </Button>
+            {loading ? (
+              <Skeleton variant="text" width="5rem" />
+            ) : (
+              <Button variant="contained" color="primary" onClick={handleEdit}>
+                Edit
+              </Button>
+            )}
           </Grid>
           <Grid item>
-            <Button variant="outlined" color="primary" onClick={handleExecute}>
-              Run
-            </Button>
+            {loading ? (
+              <Skeleton variant="text" width="5rem" />
+            ) : (
+              <Button
+                variant="outlined"
+                color="primary"
+                onClick={handleExecute}
+              >
+                Run
+              </Button>
+            )}
           </Grid>
         </Grid>
         <Grid item>
-          {workflowOverview && (
-            <WorkflowDefinitionDetailsCard
-              workflowOverview={workflowOverview}
-            />
-          )}
+          <WorkflowDefinitionDetailsCard workflowOverview={workflowOverview} />
         </Grid>
         <Grid item>
-          <InfoCard variant="fullHeight">
+          <InfoCard title="Workflow definition">
             <div style={{ height: '600px' }}>
               <WorkflowEditor
                 kind={EditorViewKind.EXTENDED_DIAGRAM_VIEWER}

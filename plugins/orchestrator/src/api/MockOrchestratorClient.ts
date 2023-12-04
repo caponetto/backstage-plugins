@@ -30,7 +30,7 @@ export interface MockOrchestratorApiData {
     OrchestratorApi['getWorkflowDataInputSchema']
   >;
   listWorkflowsResponse: ReturnType<OrchestratorApi['listWorkflows']>;
-  getWorkflowOverviewResonse: ReturnType<
+  getWorkflowOverviewResponse: ReturnType<
     OrchestratorApi['getWorkflowOverview']
   >;
 }
@@ -131,10 +131,10 @@ export class MockOrchestratorClient implements OrchestratorApi {
   }
 
   getWorkflowOverview(): Promise<WorkflowOverview> {
-    if (!this._mockData.getWorkflowOverviewResonse) {
+    if (!this._mockData.getWorkflowOverviewResponse) {
       throw new Error(`[getWorkflowOverview]: No mock data available`);
     }
 
-    return Promise.resolve(this._mockData.getWorkflowOverviewResonse);
+    return Promise.resolve(this._mockData.getWorkflowOverviewResponse);
   }
 }
