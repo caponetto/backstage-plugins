@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAsync } from 'react-use';
 
@@ -43,7 +43,7 @@ export const ExecuteWorkflowPage = (props: ExecuteWorkflowPageProps) => {
       return response;
     }, [orchestratorApi, workflowId]);
 
-  const isReady = React.useMemo(() => !loading && !error, [loading, error]);
+  const isReady = useMemo(() => !loading && !error, [loading, error]);
 
   const onExecute = useCallback(async () => {
     const parameters: Record<string, JsonValue> = {};
