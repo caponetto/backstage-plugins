@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAsync } from 'react-use';
 
 import { InfoCard, Progress } from '@backstage/core-components';
 import {
@@ -27,30 +28,26 @@ export interface ExecuteWorkflowPageProps {
 export const ExecuteWorkflowPage = (props: ExecuteWorkflowPageProps) => {
   const orchestratorApi = useApi(orchestratorApiRef);
   const { workflowId } = useRouteRefParams(executeWorkflowRouteRef);
-  const [loading, setLoading] = useState(false);
-  const [schemaResponse, setSchemaResponse] =
-    useState<WorkflowDataInputSchemaResponse>();
+  const [isExecuting, setIsExecuting] = useState(false);
+
   // @ts-ignore:
   const [formState, setFormState] = useState(props.initialState);
 
   const navigate = useNavigate();
   const instanceLink = useRouteRef(workflowInstanceRouteRef);
 
-  useEffect(() => {
-    setLoading(true);
-    orchestratorApi
-      .getWorkflowDataInputSchema(workflowId)
-      .then(response => {
-        setSchemaResponse(response);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  }, [orchestratorApi, workflowId]);
+  const { value, error, loading } =
+    useAsync(async (): Promise<WorkflowDataInputSchemaResponse> => {
+      const response =
+        await orchestratorApi.getWorkflowDataInputSchema(workflowId);
+      return response;
+    }, [orchestratorApi, workflowId]);
+
+  const isReady = React.useMemo(() => !loading && !error, [loading, error]);
 
   const onExecute = useCallback(async () => {
     const parameters: Record<string, JsonValue> = {};
-    if (schemaResponse?.schema && formState) {
+    if (value?.schema && formState) {
       for (const key in formState) {
         if (formState.hasOwnProperty(key)) {
           const property = formState[key];
@@ -59,22 +56,18 @@ export const ExecuteWorkflowPage = (props: ExecuteWorkflowPageProps) => {
       }
     }
 
-    setLoading(true);
-    const response = await orchestratorApi.executeWorkflow({
-      workflowId,
-      parameters,
-    });
-    setLoading(false);
-
-    navigate(instanceLink({ instanceId: response.id }));
-  }, [
-    formState,
-    instanceLink,
-    navigate,
-    orchestratorApi,
-    schemaResponse,
-    workflowId,
-  ]);
+    setIsExecuting(true);
+    try {
+      const response = await orchestratorApi.executeWorkflow({
+        workflowId,
+        parameters,
+      });
+      navigate(instanceLink({ instanceId: response.id }));
+    } catch (err) {
+      console.error(err);
+    }
+    setIsExecuting(false);
+  }, [formState, instanceLink, navigate, orchestratorApi, value, workflowId]);
 
   const executeButton = useMemo(
     () => (
@@ -87,13 +80,11 @@ export const ExecuteWorkflowPage = (props: ExecuteWorkflowPageProps) => {
 
   return (
     <BaseOrchestratorPage title="Execute">
-      {loading && <Progress />}
-      {schemaResponse && (
-        <InfoCard
-          title={schemaResponse.workflowItem.definition.name ?? workflowId}
-        >
+      {loading || (isExecuting && <Progress />)}
+      {isReady && (
+        <InfoCard title={value?.workflowItem.definition.name ?? workflowId}>
           {/* The multi-step form should be here */}
-          {schemaResponse?.schema ? (
+          {value?.schema ? (
             <>{executeButton}</>
           ) : (
             <Grid container spacing={2} direction="column">
