@@ -28,7 +28,7 @@ const TestRouter: React.FC<React.PropsWithChildren<{}>> = ({ children }) => (
 );
 
 export const ExecuteWorkflowPageStory: Story = {
-  name: 'ExecuteWorkflowPage',
+  name: 'Sample 1',
   render: args =>
     wrapInTestApp(
       <TestRouter>
