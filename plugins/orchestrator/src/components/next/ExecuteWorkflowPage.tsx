@@ -48,10 +48,8 @@ export const ExecuteWorkflowPage = (props: ExecuteWorkflowPageProps) => {
     const parameters: Record<string, JsonValue> = {};
     if (value?.schema && formState) {
       for (const key of Object.keys(formState)) {
-        if (formState.hasOwnProperty(key)) {
-          const property = formState[key];
-          Object.assign(parameters, property);
-        }
+        const property = formState[key];
+        Object.assign(parameters, property);
       }
     }
 
