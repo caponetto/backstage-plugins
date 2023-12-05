@@ -72,7 +72,7 @@ export const ExecuteWorkflowPage = (props: ExecuteWorkflowPageProps) => {
 
   const executeButton = useMemo(
     () => (
-      <Button variant="contained" color="primary" onClick={onExecute}>
+      <Button variant="contained" color="primary" onClick={handleExecute}>
         Execute
       </Button>
     ),
