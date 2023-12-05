@@ -48,7 +48,7 @@ export const ExecuteWorkflowPage = (props: ExecuteWorkflowPageProps) => {
   const onExecute = useCallback(async () => {
     const parameters: Record<string, JsonValue> = {};
     if (value?.schema && formState) {
-      for (const key in formState) {
+      for (const key of Object.keys(formState)) {
         if (formState.hasOwnProperty(key)) {
           const property = formState[key];
           Object.assign(parameters, property);
