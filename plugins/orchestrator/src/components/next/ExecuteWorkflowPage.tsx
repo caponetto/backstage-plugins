@@ -45,7 +45,7 @@ export const ExecuteWorkflowPage = (props: ExecuteWorkflowPageProps) => {
 
   const isReady = useMemo(() => !loading && !error, [loading, error]);
 
-  const onExecute = useCallback(async () => {
+  const handleExecute = useCallback(async () => {
     const parameters: Record<string, JsonValue> = {};
     if (value?.schema && formState) {
       for (const key of Object.keys(formState)) {
