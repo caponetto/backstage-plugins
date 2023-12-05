@@ -12,7 +12,7 @@ import { orchestratorRootRouteRef } from '../../routes';
 import { ExecuteWorkflowPage } from './ExecuteWorkflowPage';
 
 const meta = {
-  title: 'Orchestrator/next',
+  title: 'Orchestrator/next/ExecuteWorkflowPage',
   component: ExecuteWorkflowPage,
 } satisfies Meta<typeof ExecuteWorkflowPage>;
 
