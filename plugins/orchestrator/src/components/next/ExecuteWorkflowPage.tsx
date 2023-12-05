@@ -30,6 +30,7 @@ export const ExecuteWorkflowPage = (props: ExecuteWorkflowPageProps) => {
   const { workflowId } = useRouteRefParams(executeWorkflowRouteRef);
   const [isExecuting, setIsExecuting] = useState(false);
 
+  // @ts-ignore:
   const [formState, setFormState] = useState(props.initialState);
 
   const navigate = useNavigate();
