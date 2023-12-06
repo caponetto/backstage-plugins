@@ -41,8 +41,9 @@ interface ExecuteWorkflowPageProps {
 
 export const ExecuteWorkflowPage = (props: ExecuteWorkflowPageProps) => {
   const orchestratorApi = useApi(orchestratorApiRef);
-  const { workflowId, businessKey } = useRouteRefParams(
-    executeWorkflowRouteRef,
+  const { workflowId } = useRouteRefParams(executeWorkflowRouteRef);
+  const { businessKey } = useRouteRefParams(
+    executeWorkflowWithBusinessKeyRouteRef,
   );
   const [loading, setLoading] = useState(false);
   const [schemaResponse, setSchemaResponse] =

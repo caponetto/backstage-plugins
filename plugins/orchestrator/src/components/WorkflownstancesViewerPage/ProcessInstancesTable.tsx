@@ -74,7 +74,7 @@ export const ProcessInstancesTable = (props: ProcessInstancesTableProps) => {
           return {
             pid: pi.id,
             name: pi.processId,
-            businessKey: pi.businessKey,
+            businessKey: pi.businessKey?.substring(0, 8),
             state: pi.state,
           };
         })
