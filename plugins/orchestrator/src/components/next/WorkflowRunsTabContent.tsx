@@ -25,6 +25,7 @@ interface Row {
   started: string;
   duration: string;
   component: string;
+  parentInstanceId?: string;
 }
 
 const DetailPanel = ({ rowData }: { rowData: Row }) => {
@@ -63,11 +64,11 @@ export const WorkflowRunsTabContent = () => {
           duration: duration.humanize(),
           status: instance.state,
           component: instance.source || DASHES /* TODO: is that correct? */,
+          parentInstanceId: instance.parentProcessInstance?.id,
         };
 
         return row;
       });
-
     return clonedData;
   }, [orchestratorApi]);
 
@@ -151,6 +152,9 @@ export const WorkflowRunsTabContent = () => {
           columns={columns}
           data={filteredData}
           detailPanel={DetailPanel}
+          parentChildData={(row, rows) =>
+            rows.find(a => a.id === row.parentInstanceId)
+          }
         />
       )}
     </WrapperInfoCard>
