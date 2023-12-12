@@ -72,7 +72,7 @@ export const ExecuteWorkflowPage = (props: ExecuteWorkflowPageProps) => {
       for (const key in formState) {
         if (formState.hasOwnProperty(key)) {
           const property = formState[key];
-          Object.assign(parameters, property);
+          Object.assign(parameters, { [key]: property });
         }
       }
     }
