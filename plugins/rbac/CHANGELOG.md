@@ -1,3 +1,46 @@
+## @janus-idp/backstage-plugin-rbac [1.5.1](https://github.com/janus-idp/backstage-plugins/compare/@janus-idp/backstage-plugin-rbac@1.5.0...@janus-idp/backstage-plugin-rbac@1.5.1) (2023-12-07)
+
+
+
+### Dependencies
+
+* **@janus-idp/cli:** upgraded to 1.4.7
+
+## @janus-idp/backstage-plugin-rbac [1.5.0](https://github.com/janus-idp/backstage-plugins/compare/@janus-idp/backstage-plugin-rbac@1.4.0...@janus-idp/backstage-plugin-rbac@1.5.0) (2023-12-07)
+
+
+### Features
+
+* **rbac:** list roles with no permission policies ([#998](https://github.com/janus-idp/backstage-plugins/issues/998)) ([217b7b0](https://github.com/janus-idp/backstage-plugins/commit/217b7b0db3414788c8e77247f378a51cf0eeda0d))
+
+## @janus-idp/backstage-plugin-rbac [1.4.0](https://github.com/janus-idp/backstage-plugins/compare/@janus-idp/backstage-plugin-rbac@1.3.1...@janus-idp/backstage-plugin-rbac@1.4.0) (2023-12-05)
+
+
+### Features
+
+* **rbac:** role overview ([#972](https://github.com/janus-idp/backstage-plugins/issues/972)) ([43c1906](https://github.com/janus-idp/backstage-plugins/commit/43c19064e9477a5449ff5d56b00efe27cf640c27))
+
+
+
+### Dependencies
+
+* **@janus-idp/backstage-plugin-rbac-common:** upgraded to 1.2.0
+
+## @janus-idp/backstage-plugin-rbac [1.3.1](https://github.com/janus-idp/backstage-plugins/compare/@janus-idp/backstage-plugin-rbac@1.3.0...@janus-idp/backstage-plugin-rbac@1.3.1) (2023-11-30)
+
+
+
+### Dependencies
+
+* **@janus-idp/cli:** upgraded to 1.4.6
+
+## @janus-idp/backstage-plugin-rbac [1.3.0](https://github.com/janus-idp/backstage-plugins/compare/@janus-idp/backstage-plugin-rbac@1.2.4...@janus-idp/backstage-plugin-rbac@1.3.0) (2023-11-28)
+
+
+### Features
+
+* **rbac:** list roles ([#937](https://github.com/janus-idp/backstage-plugins/issues/937)) ([8722056](https://github.com/janus-idp/backstage-plugins/commit/8722056088a3214f6267c621ecc10e3658484a07))
+
 ## @janus-idp/backstage-plugin-rbac [1.2.4](https://github.com/janus-idp/backstage-plugins/compare/@janus-idp/backstage-plugin-rbac@1.2.3...@janus-idp/backstage-plugin-rbac@1.2.4) (2023-11-22)
 
 

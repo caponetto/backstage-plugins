@@ -6,15 +6,16 @@ import { JsonObject, JsonValue } from '@backstage/types';
 
 import express from 'express';
 import Router from 'express-promise-router';
+import { JSONSchema7 } from 'json-schema';
 import { Logger } from 'winston';
 
 import {
   fromWorkflowSource,
   orchestrator_service_ready_topic,
-  WorkflowDataInputSchema,
   WorkflowDataInputSchemaResponse,
   WorkflowItem,
   WorkflowListResult,
+  WorkflowOverviewListResult,
 } from '@janus-idp/backstage-plugin-orchestrator-common';
 
 import { RouterArgs } from '../routerWrapper';
@@ -90,7 +91,6 @@ export async function createBackendRouter(
     args.sonataFlowService,
     workflowService,
     openApiService,
-    dataInputSchemaService,
     jiraService,
   );
   setupExternalRoutes(router, discovery, scaffolderService);
@@ -124,12 +124,28 @@ function setupInternalRoutes(
   sonataFlowService: SonataFlowService,
   workflowService: WorkflowService,
   openApiService: OpenApiService,
-  dataInputSchemaService: DataInputSchemaService,
   jiraService: JiraService,
 ) {
   router.get('/workflows/definitions', async (_, response) => {
     const swfs = await DataIndexService.getWorkflowDefinitions();
     response.json(ApiResponseBuilder.SUCCESS_RESPONSE(swfs));
+  });
+
+  router.get('/workflows/overview', async (_, res) => {
+    const overviews = await sonataFlowService.fetchWorkflowOverviews();
+
+    if (!overviews) {
+      res.status(500).send("Couldn't fetch workflow overviews");
+      return;
+    }
+
+    const result: WorkflowOverviewListResult = {
+      items: overviews,
+      limit: 0,
+      offset: 0,
+      totalCount: overviews?.length ?? 0,
+    };
+    res.status(200).json(result);
   });
 
   router.get('/workflows', async (_, res) => {
@@ -194,6 +210,22 @@ function setupInternalRoutes(
     res.status(200).json(executionResponse);
   });
 
+  router.get('/workflows/:workflowId/overview', async (req, res) => {
+    const {
+      params: { workflowId },
+    } = req;
+    const overviewObj =
+      await sonataFlowService.fetchWorkflowOverview(workflowId);
+
+    if (!overviewObj) {
+      res
+        .status(500)
+        .send(`Couldn't fetch workflow overview for ${workflowId}`);
+      return;
+    }
+    res.status(200).json(overviewObj);
+  });
+
   router.get('/instances', async (_, res) => {
     const instances = await sonataFlowService.fetchProcessInstances();
 
@@ -256,32 +288,18 @@ function setupInternalRoutes(
 
     const workflowItem: WorkflowItem = { uri, definition };
 
-    let schema: WorkflowDataInputSchema | undefined = undefined;
+    let schema: JSONSchema7 | undefined = undefined;
 
     if (definition.dataInputSchema) {
-      const openApi = await sonataFlowService.fetchOpenApi();
+      const workflowInfo =
+        await sonataFlowService.fetchWorkflowInfo(workflowId);
 
-      if (!openApi) {
-        res.status(500).send(`Couldn't fetch OpenAPI from SonataFlow service`);
+      if (!workflowInfo) {
+        res.status(500).send(`Couldn't fetch workflow info ${workflowId}`);
         return;
       }
 
-      const workflowDataInputSchema =
-        await dataInputSchemaService.resolveDataInputSchema({
-          openApi,
-          workflowId,
-        });
-
-      if (!workflowDataInputSchema) {
-        res
-          .status(500)
-          .send(
-            `Couldn't resolve data input schema for workflow ${workflowId}`,
-          );
-        return;
-      }
-
-      schema = workflowDataInputSchema;
+      schema = workflowInfo.inputSchema;
     }
 
     const response: WorkflowDataInputSchemaResponse = {

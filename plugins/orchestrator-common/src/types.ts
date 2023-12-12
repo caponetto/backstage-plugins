@@ -1,6 +1,8 @@
 import { Specification } from '@severlessworkflow/sdk-typescript';
-import { JSONSchema4 } from 'json-schema';
+import { JSONSchema7 } from 'json-schema';
 import { OpenAPIV3 } from 'openapi-types';
+
+import { ProcessInstanceStateValues } from './models';
 
 type Id<T> = { [P in keyof T]: T[P] };
 
@@ -32,6 +34,13 @@ export type WorkflowListResult = {
   limit: number;
 };
 
+export type WorkflowOverviewListResult = {
+  items: WorkflowOverview[];
+  totalCount: number;
+  offset: number;
+  limit: number;
+};
+
 export type WorkflowFormat = 'yaml' | 'json';
 
 export interface WorkflowSample {
@@ -44,17 +53,9 @@ export interface WorkflowSpecFile {
   content: OpenAPIV3.Document;
 }
 
-export type WorkflowDataInputSchema = JSONSchema4 & {
-  components: {
-    schemas: {
-      [key: string]: OpenAPIV3.NonArraySchemaObject;
-    };
-  };
-};
-
 export interface WorkflowDataInputSchemaResponse {
   workflowItem: WorkflowItem;
-  schema: WorkflowDataInputSchema | undefined;
+  schema: JSONSchema7 | undefined;
 }
 
 export interface WorkflowExecutionResponse {
@@ -64,4 +65,24 @@ export interface WorkflowExecutionResponse {
 export enum WorkflowCategory {
   ASSESSMENT = 'assessment',
   INFRASTRUCTURE = 'infrastructure',
+}
+
+export interface WorkflowOverview {
+  workflowId: string;
+  name?: string;
+  uri?: string;
+  lastTriggeredMs?: number;
+  lastRunStatus?: ProcessInstanceStateValues;
+  type?: string;
+  avgDurationMs?: number;
+  description?: string;
+}
+
+export interface WorkflowInfo {
+  id: string;
+  type: string;
+  name: string;
+  version: string;
+  description?: string;
+  inputSchema?: JSONSchema7;
 }

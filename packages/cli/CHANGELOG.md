@@ -1,3 +1,17 @@
+## @janus-idp/cli [1.4.7](https://github.com/janus-idp/backstage-plugins/compare/@janus-idp/cli@1.4.6...@janus-idp/cli@1.4.7) (2023-12-07)
+
+
+### Bug Fixes
+
+* **cli:** do not change interop mode by default ([#971](https://github.com/janus-idp/backstage-plugins/issues/971)) ([4159977](https://github.com/janus-idp/backstage-plugins/commit/41599773d60fe944e402065970295b47cc2d46d6))
+
+## @janus-idp/cli [1.4.6](https://github.com/janus-idp/backstage-plugins/compare/@janus-idp/cli@1.4.5...@janus-idp/cli@1.4.6) (2023-11-30)
+
+
+### Bug Fixes
+
+* **cli:** schema generator do not ignore repo root ([#981](https://github.com/janus-idp/backstage-plugins/issues/981)) ([67f22f6](https://github.com/janus-idp/backstage-plugins/commit/67f22f686860e79f5d019f71072b2856a9b17230))
+
 ## @janus-idp/cli [1.4.5](https://github.com/janus-idp/backstage-plugins/compare/@janus-idp/cli@1.4.4...@janus-idp/cli@1.4.5) (2023-11-22)
 
 

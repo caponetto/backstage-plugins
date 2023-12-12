@@ -1,3 +1,26 @@
+## @janus-idp/backstage-scaffolder-backend-module-servicenow [1.2.5](https://github.com/janus-idp/backstage-plugins/compare/@janus-idp/backstage-scaffolder-backend-module-servicenow@1.2.4...@janus-idp/backstage-scaffolder-backend-module-servicenow@1.2.5) (2023-12-07)
+
+
+
+### Dependencies
+
+* **@janus-idp/cli:** upgraded to 1.4.7
+
+## @janus-idp/backstage-scaffolder-backend-module-servicenow [1.2.4](https://github.com/janus-idp/backstage-plugins/compare/@janus-idp/backstage-scaffolder-backend-module-servicenow@1.2.3...@janus-idp/backstage-scaffolder-backend-module-servicenow@1.2.4) (2023-11-30)
+
+
+
+### Dependencies
+
+* **@janus-idp/cli:** upgraded to 1.4.6
+
+## @janus-idp/backstage-scaffolder-backend-module-servicenow [1.2.3](https://github.com/janus-idp/backstage-plugins/compare/@janus-idp/backstage-scaffolder-backend-module-servicenow@1.2.2...@janus-idp/backstage-scaffolder-backend-module-servicenow@1.2.3) (2023-11-28)
+
+
+### Bug Fixes
+
+* **servicenow-actions:** revert `node-fetch` dep ([#973](https://github.com/janus-idp/backstage-plugins/issues/973)) ([94bedf9](https://github.com/janus-idp/backstage-plugins/commit/94bedf9ce7c2f7e258c726223c7a6735e30bea78))
+
 ## @janus-idp/backstage-scaffolder-backend-module-servicenow [1.2.2](https://github.com/janus-idp/backstage-plugins/compare/@janus-idp/backstage-scaffolder-backend-module-servicenow@1.2.1...@janus-idp/backstage-scaffolder-backend-module-servicenow@1.2.2) (2023-11-22)
 
 

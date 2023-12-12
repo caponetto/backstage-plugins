@@ -137,6 +137,8 @@ dynamicPlugins:
             registerComponent: 'catalogImportPlugin.routes.importPage'
 
 orchestrator:
+  editor:
+    path: /workflow-editor-envelope
   sonataFlowService:
     baseUrl: http://localhost
     port: 8080

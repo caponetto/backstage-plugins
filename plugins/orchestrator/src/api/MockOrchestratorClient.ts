@@ -7,6 +7,8 @@ import {
   WorkflowExecutionResponse,
   WorkflowItem,
   WorkflowListResult,
+  WorkflowOverview,
+  WorkflowOverviewListResult,
   WorkflowSpecFile,
 } from '@janus-idp/backstage-plugin-orchestrator-common';
 
@@ -29,6 +31,12 @@ export interface MockOrchestratorApiData {
     OrchestratorApi['getWorkflowDataInputSchema']
   >;
   listWorkflowsResponse: ReturnType<OrchestratorApi['listWorkflows']>;
+  listWorkflowsOverviewResponse: ReturnType<
+    OrchestratorApi['listWorkflowsOverview']
+  >;
+  getWorkflowOverviewResponse: ReturnType<
+    OrchestratorApi['getWorkflowOverview']
+  >;
 }
 
 export class MockOrchestratorClient implements OrchestratorApi {
@@ -124,5 +132,21 @@ export class MockOrchestratorClient implements OrchestratorApi {
     }
 
     return Promise.resolve(this._mockData.listWorkflowsResponse);
+  }
+
+  listWorkflowsOverview(): Promise<WorkflowOverviewListResult> {
+    if (!this._mockData.listWorkflowsOverviewResponse) {
+      throw new Error(`[listWorkflowsOverview]: No mock data available`);
+    }
+
+    return Promise.resolve(this._mockData.listWorkflowsOverviewResponse);
+  }
+
+  getWorkflowOverview(): Promise<WorkflowOverview> {
+    if (!this._mockData.getWorkflowOverviewResponse) {
+      throw new Error(`[getWorkflowOverview]: No mock data available`);
+    }
+
+    return Promise.resolve(this._mockData.getWorkflowOverviewResponse);
   }
 }

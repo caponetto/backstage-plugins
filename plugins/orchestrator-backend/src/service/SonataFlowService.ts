@@ -10,14 +10,18 @@ import {
   fromWorkflowSource,
   Job,
   ProcessInstance,
+  ProcessInstanceStateValues,
   WorkflowDefinition,
   WorkflowExecutionResponse,
+  WorkflowInfo,
   WorkflowItem,
+  WorkflowOverview,
 } from '@janus-idp/backstage-plugin-orchestrator-common';
 
 import { spawn } from 'child_process';
 import { join, resolve } from 'path';
 
+import { getWorkflowCategory } from '../helpers/workflows';
 import { executeWithRetry } from './Helper';
 
 const SONATA_FLOW_RESOURCES_PATH =
@@ -90,17 +94,41 @@ export class SonataFlowService {
     workflowId: string,
   ): Promise<string | undefined> {
     try {
-      const response = await executeWithRetry(() =>
-        fetch(`${this.url}/management/processes/${workflowId}/sources`),
-      );
+      const urlToFetch = `${this.url}/management/processes/${workflowId}/sources`;
+      const response = await executeWithRetry(() => fetch(urlToFetch));
 
       if (response.ok) {
         const json = (await response.json()) as SonataFlowSource[];
         // Assuming only one source in the list
         return json.pop()?.uri;
       }
+      const responseStr = JSON.stringify(response);
+      this.logger.error(
+        `Response was NOT okay when fetch(${urlToFetch}). Received response: ${responseStr}`,
+      );
     } catch (error) {
       this.logger.error(`Error when fetching workflow uri: ${error}`);
+    }
+
+    return undefined;
+  }
+
+  public async fetchWorkflowInfo(
+    workflowId: string,
+  ): Promise<WorkflowInfo | undefined> {
+    try {
+      const urlToFetch = `${this.url}/management/processes/${workflowId}`;
+      const response = await executeWithRetry(() => fetch(urlToFetch));
+
+      if (response.ok) {
+        return await response.json();
+      }
+      const responseStr = JSON.stringify(response);
+      this.logger.error(
+        `Response was NOT okay when fetch(${urlToFetch}). Received response: ${responseStr}`,
+      );
+    } catch (error) {
+      this.logger.error(`Error when fetching workflow info: ${error}`);
     }
 
     return undefined;
@@ -110,13 +138,16 @@ export class SonataFlowService {
     workflowId: string,
   ): Promise<string | undefined> {
     try {
-      const response = await executeWithRetry(() =>
-        fetch(`${this.url}/management/processes/${workflowId}/source`),
-      );
+      const urlToFetch = `${this.url}/management/processes/${workflowId}/source`;
+      const response = await executeWithRetry(() => fetch(urlToFetch));
 
       if (response.ok) {
         return await response.text();
       }
+      const responseStr = JSON.stringify(response);
+      this.logger.error(
+        `Response was NOT okay when fetch(${urlToFetch}). Received response: ${responseStr}`,
+      );
     } catch (error) {
       this.logger.error(`Error when fetching workflow source: ${error}`);
     }
@@ -139,12 +170,15 @@ export class SonataFlowService {
 
   public async fetchOpenApi(): Promise<OpenAPIV3.Document | undefined> {
     try {
-      const response = await executeWithRetry(() =>
-        fetch(`${this.url}/q/openapi.json`),
-      );
+      const urlToFetch = `${this.url}/q/openapi.json`;
+      const response = await executeWithRetry(() => fetch(urlToFetch));
       if (response.ok) {
         return await response.json();
       }
+      const responseStr = JSON.stringify(response);
+      this.logger.error(
+        `Response was NOT okay when fetch(${urlToFetch}). Received response: ${responseStr}`,
+      );
     } catch (error) {
       this.logger.error(`Error when fetching openapi: ${error}`);
     }
@@ -153,9 +187,8 @@ export class SonataFlowService {
 
   public async fetchWorkflows(): Promise<WorkflowItem[] | undefined> {
     try {
-      const response = await executeWithRetry(() =>
-        fetch(`${this.url}/management/processes`),
-      );
+      const urlToFetch = `${this.url}/management/processes`;
+      const response = await executeWithRetry(() => fetch(urlToFetch));
 
       if (response.ok) {
         const workflowIds = (await response.json()) as string[];
@@ -183,8 +216,44 @@ export class SonataFlowService {
         );
         return items.filter((item): item is WorkflowItem => !!item);
       }
+      const responseStr = JSON.stringify(response);
+      this.logger.error(
+        `Response was NOT okay when fetch(${urlToFetch}). Received response: ${responseStr}`,
+      );
     } catch (error) {
       this.logger.error(`Error when fetching workflows: ${error}`);
+    }
+    return undefined;
+  }
+
+  public async fetchWorkflowOverviews(): Promise<
+    WorkflowOverview[] | undefined
+  > {
+    try {
+      const urlToFetch = `${this.url}/management/processes`;
+      const response = await executeWithRetry(() => fetch(urlToFetch));
+
+      if (response.ok) {
+        const workflowIds = (await response.json()) as string[];
+        if (!workflowIds?.length) {
+          return [];
+        }
+        const items = await Promise.all(
+          workflowIds.map(async (workflowId: string) => {
+            return this.fetchWorkflowOverview(workflowId);
+          }),
+        );
+
+        return items.filter((item): item is WorkflowOverview => !!item);
+      }
+      const responseStr = JSON.stringify(response);
+      this.logger.error(
+        `Response was NOT okay when fetch(${urlToFetch}). Received response: ${responseStr}`,
+      );
+    } catch (error) {
+      this.logger.error(
+        `Error when fetching workflows for workflowOverview: ${error}`,
+      );
     }
     return undefined;
   }
@@ -228,7 +297,19 @@ export class SonataFlowService {
 
       if (response.ok) {
         const json = await response.json();
-        return (json.data.ProcessInstances as ProcessInstance[])?.pop();
+        const processInstance = (
+          json.data.ProcessInstances as ProcessInstance[]
+        )?.pop();
+
+        if (processInstance?.processId) {
+          const workflowDefinition = await this.fetchWorkflowDefinition(
+            processInstance.processId,
+          );
+
+          processInstance.category = getWorkflowCategory(workflowDefinition);
+        }
+
+        return processInstance;
       }
     } catch (error) {
       this.logger.error(`Error when fetching instance: ${error}`);
@@ -325,6 +406,21 @@ export class SonataFlowService {
     return false;
   }
 
+  private extractWorkflowType(
+    workflowDef: WorkflowDefinition,
+  ): string | undefined {
+    if (workflowDef.annotations) {
+      for (const annotation of workflowDef.annotations) {
+        if (annotation.includes('workflow-type/')) {
+          const value: string = annotation.split('/')[1].trim();
+          return value.charAt(0).toUpperCase() + value.slice(1);
+        }
+      }
+    }
+
+    return undefined;
+  }
+
   private createLauncherCommand(): LauncherCommand {
     const resourcesAbsPath = resolve(
       join(this.connection.resourcesPath, default_workflows_path),
@@ -413,6 +509,71 @@ export class SonataFlowService {
       resourcesPath,
       persistencePath,
       jira: jiraConfig,
+    };
+  }
+
+  public async fetchWorkflowOverview(
+    workflowId: string,
+  ): Promise<WorkflowOverview | undefined> {
+    const definition = await this.fetchWorkflowDefinition(workflowId);
+    if (!definition) {
+      this.logger.debug(`Workflow definition not found: ${workflowId}`);
+      return undefined;
+    }
+    let processInstances: ProcessInstance[] = [];
+    const limit = 10;
+    let offset: number = 0;
+
+    let lastTriggered: Date = new Date(0);
+    let lastRunStatus: ProcessInstanceStateValues | undefined;
+    let counter = 0;
+    let totalDuration = 0;
+
+    do {
+      const graphQlQuery = `{ ProcessInstances(where: {processId: {equal: "${definition.id}" } }, pagination: {limit: ${limit}, offset: ${offset}}) { processName, state, start, lastUpdate, end } }`;
+
+      try {
+        const graphQlResponse = await executeWithRetry(() =>
+          fetch(`${this.url}/graphql`, {
+            method: 'POST',
+            body: JSON.stringify({ query: graphQlQuery }),
+            headers: { 'content-type': 'application/json' },
+          }),
+        );
+
+        if (graphQlResponse.ok) {
+          const json = await graphQlResponse.json();
+          processInstances = json.data.ProcessInstances;
+        }
+      } catch (error) {
+        this.logger.error(`Error when fetching workflow instances: ${error}`);
+      }
+
+      for (let i = 0; i < processInstances.length; i++) {
+        const pInstance: ProcessInstance = processInstances[i];
+        if (new Date(pInstance.start) > lastTriggered) {
+          lastTriggered = new Date(pInstance.start);
+          lastRunStatus = pInstance.state;
+        }
+        if (pInstance.start && pInstance.end) {
+          const start: Date = new Date(pInstance.start);
+          const end: Date = new Date(pInstance.end);
+          totalDuration += end.valueOf() - start.valueOf();
+          counter++;
+        }
+      }
+      offset += limit;
+    } while (processInstances.length > 0);
+
+    return {
+      workflowId: definition.id,
+      name: definition.name,
+      uri: await this.fetchWorkflowUri(workflowId),
+      lastTriggeredMs: lastTriggered.getTime(),
+      lastRunStatus,
+      type: this.extractWorkflowType(definition),
+      avgDurationMs: counter ? totalDuration / counter : undefined,
+      description: definition.description,
     };
   }
 }

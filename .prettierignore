@@ -6,3 +6,4 @@ CHANGELOG.md
 generated
 templates
 *.hbs
+packages/app/public/workflow-editor-envelope
