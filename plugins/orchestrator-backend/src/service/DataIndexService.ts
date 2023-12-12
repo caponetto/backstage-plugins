@@ -1,4 +1,4 @@
-import { cacheExchange, Client, fetchExchange } from '@urql/core';
+import { Client, fetchExchange } from '@urql/core';
 import { Logger } from 'winston';
 
 import {
@@ -6,14 +6,11 @@ import {
   getWorkflowCategory,
   Job,
   ProcessInstance,
-  WorkflowDefinition,
   WorkflowInfo,
-  WorkflowItem,
 } from '@janus-idp/backstage-plugin-orchestrator-common';
 
 import { ErrorBuilder } from '../helpers/errorBuilder';
 import { BackendExecCtx } from '../types/backendExecCtx';
-import { DEFAULT_DATA_INDEX_URL } from '../types/constants';
 
 export class DataIndexService {
   private backendExecCtx: BackendExecCtx;
@@ -40,8 +37,7 @@ export class DataIndexService {
   }
 
   private getNewGraphQLClient(): Client {
-    const diURL =
-      this.backendExecCtx?.dataIndexUrl ?? DEFAULT_DATA_INDEX_URL + '/graphql';
+    const diURL = this.backendExecCtx.dataIndexUrl + '/graphql';
     return new Client({
       url: diURL,
       exchanges: [fetchExchange],

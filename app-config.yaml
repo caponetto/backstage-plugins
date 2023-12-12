@@ -150,4 +150,4 @@ orchestrator:
       localPath: /tmp/orchestrator/repository
       autoPush: false
   dataIndexService:
-    url: ${DATA_INDEX_URL}
+    url: http://localhost:8080
