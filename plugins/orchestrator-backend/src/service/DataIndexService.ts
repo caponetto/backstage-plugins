@@ -6,6 +6,7 @@ import {
   getWorkflowCategory,
   Job,
   ProcessInstance,
+  WorkflowDefinition,
   WorkflowInfo,
 } from '@janus-idp/backstage-plugin-orchestrator-common';
 
@@ -139,6 +140,7 @@ export class DataIndexService {
     offset: number,
   ): Promise<ProcessInstance[]> {
     const graphQlQuery = `{ ProcessInstances(where: {processId: {equal: "${workflowId}" } }, pagination: {limit: ${limit}, offset: ${offset}}) { processName, state, start, lastUpdate, end } }`;
+    ('{ ProcessInstances ( orderBy: { start: ASC }, where: {processId: {isNull: false} } ) { id, processName, processId, state, start, lastUpdate, end, nodes { id }, variables, parentProcessInstance {id, processName, businessKey} } }');
 
     const result = await this.client.query(graphQlQuery, {});
 
@@ -148,6 +150,7 @@ export class DataIndexService {
       );
       throw result.error;
     }
+
     return result.data.ProcessInstances;
   }
 
