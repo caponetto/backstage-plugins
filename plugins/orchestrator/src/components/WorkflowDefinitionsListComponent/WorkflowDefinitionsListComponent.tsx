@@ -57,7 +57,7 @@ export const WorkflowsTable = ({ items }: WorkflowsTableProps) => {
   const initTableState = useMemo(() => {
     const assessmentExist = !!items.find(
       item =>
-        item.definition.annotations?.find(
+        item.definition?.annotations?.find(
           annotation => annotation === ASSESSMENT_WORKFLOW_TYPE,
         ),
     );
@@ -72,17 +72,17 @@ export const WorkflowsTable = ({ items }: WorkflowsTableProps) => {
   const getInitialState = useMemo(() => {
     return items.map(item => {
       return {
-        id: item.definition.id,
-        name: item.definition.name ?? '',
+        id: item.definition?.id,
+        name: item.definition?.name ?? '',
         lastRun: '',
         lastRunStatus: '',
-        type: item.definition.annotations?.find(
+        type: item.definition?.annotations?.find(
           annotation => annotation === ASSESSMENT_WORKFLOW_TYPE,
         )
           ? WorkflowCategory.ASSESSMENT
           : WorkflowCategory.INFRASTRUCTURE,
         components: '---',
-        format: extractWorkflowFormatFromUri(item.uri),
+        format: extractWorkflowFormatFromUri(item.uri ?? ''),
       };
     });
   }, [items]);
