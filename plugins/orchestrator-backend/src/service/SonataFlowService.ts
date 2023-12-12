@@ -141,17 +141,11 @@ export class SonataFlowService {
     return undefined;
   }
 
-  public async fetchWorkflowSource(
-    workflowId: string,
-  ): Promise<string | undefined> {
-    return this.dataIndex.fetchWorkflowSource(workflowId);
-  }
-
   public async fetchWorkflowDefinition(
     workflowId: string,
   ): Promise<WorkflowDefinition | undefined> {
     try {
-      const source = await this.fetchWorkflowSource(workflowId);
+      const source = await this.dataIndex.fetchWorkflowSource(workflowId);
       if (source) {
         return fromWorkflowSource(source);
       }
