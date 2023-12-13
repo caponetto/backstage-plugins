@@ -73,7 +73,7 @@ export class SonataFlowService {
   }
 
   public async connect(): Promise<boolean> {
-    if (!this.connection.autoStart) {
+    if (!!this.connection.autoStart) {
       return true;
     }
 
