@@ -163,8 +163,8 @@ export class OrchestratorEntityProvider
         kind: 'Template',
         metadata: {
           name: sanitizedId,
-          title: i.definition?.name,
-          description: i.definition?.description,
+          title: i.definition.name,
+          description: i.definition.description,
           tags: [category],
           annotations: {
             [ANNOTATION_LOCATION]: `url:${this.sonataFlowServiceUrl}`,

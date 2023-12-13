@@ -142,9 +142,12 @@ function setupInternalRoutes(
     const items: WorkflowItem[] = await Promise.all(
       definitions.map(async info => {
         const uri = await sonataFlowService.fetchWorkflowUri(info.id);
+        if (!uri) {
+          throw new Error(`Uri is required for workflow ${info.id}`);
+        }
         const item: WorkflowItem = {
           definition: info as WorkflowDefinition,
-          uri: uri ?? 'eita',
+          uri: uri,
         };
         return item;
       }),
@@ -197,8 +200,10 @@ function setupInternalRoutes(
     } = req;
 
     const definition = await dataIndexService.getWorkflowDefinition(workflowId);
-    const serviceUrl = definition.serviceUrl ?? '';
-
+    const serviceUrl = definition.serviceUrl;
+    if (!serviceUrl) {
+      throw new Error(`ServiceURL is not defined for workflow ${workflowId}`);
+    }
     const executionResponse = await sonataFlowService.executeWorkflow({
       workflowId,
       inputData: req.body,

@@ -72,8 +72,8 @@ export const WorkflowsTable = ({ items }: WorkflowsTableProps) => {
   const getInitialState = useMemo(() => {
     return items.map(item => {
       return {
-        id: item.definition?.id,
-        name: item.definition?.name ?? '',
+        id: item.definition.id,
+        name: item.definition.name ?? '',
         lastRun: '',
         lastRunStatus: '',
         type: item.definition?.annotations?.find(
@@ -82,7 +82,7 @@ export const WorkflowsTable = ({ items }: WorkflowsTableProps) => {
           ? WorkflowCategory.ASSESSMENT
           : WorkflowCategory.INFRASTRUCTURE,
         components: '---',
-        format: extractWorkflowFormatFromUri(item.uri ?? ''),
+        format: extractWorkflowFormatFromUri(item.uri),
       };
     });
   }, [items]);

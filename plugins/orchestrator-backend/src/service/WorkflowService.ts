@@ -53,7 +53,7 @@ export class WorkflowService {
   }
 
   async saveWorkflowDefinition(item: WorkflowItem): Promise<WorkflowItem> {
-    const workflowFormat = extractWorkflowFormatFromUri(item.uri ?? '');
+    const workflowFormat = extractWorkflowFormatFromUri(item.uri);
     const definitionsPath = this.resolveResourcePath(
       `${item.definition?.id}.sw.${workflowFormat}`,
     );

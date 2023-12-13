@@ -144,10 +144,10 @@ orchestrator:
   sonataFlowService:
     baseUrl: http://localhost
     port: 8099
-    autoStart: false
+    autoStart: true
     workflowsSource:
       gitRepositoryUrl: https://github.com/tiagodolphine/backstage-orchestrator-workflows
       localPath: /tmp/orchestrator/repository
       autoPush: false
   dataIndexService:
-    url: http://localhost:8080
+    url: http://localhost:8099

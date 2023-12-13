@@ -73,7 +73,7 @@ export class SonataFlowService {
   }
 
   public async connect(): Promise<boolean> {
-    if (!!this.connection.autoStart) {
+    if (!this.connection.autoStart) {
       return true;
     }
 
@@ -226,9 +226,9 @@ export class SonataFlowService {
         return [];
       }
       const items = await Promise.all(
-        workflowDefinitions.map(async (def: WorkflowInfo) => {
-          return this.fetchWorkflowOverview(def.id ?? '');
-        }),
+        workflowDefinitions
+          .filter(def => def.id)
+          .map(async (def: WorkflowInfo) => this.fetchWorkflowOverview(def.id)),
       );
       return items.filter((item): item is WorkflowOverview => !!item);
     } catch (error) {
@@ -311,7 +311,7 @@ export class SonataFlowService {
   private extractWorkflowType(
     workflowDef: WorkflowDefinition,
   ): string | undefined {
-    if (workflowDef && workflowDef.annotations) {
+    if (workflowDef.annotations) {
       for (const annotation of workflowDef.annotations) {
         if (annotation.includes('workflow-type/')) {
           const value: string = annotation.split('/')[1].trim();
