@@ -38,7 +38,7 @@ export class DataIndexService {
   }
 
   private getNewGraphQLClient(): Client {
-    const diURL = this.backendExecCtx.dataIndexUrl + '/graphql';
+    const diURL = `${this.backendExecCtx.dataIndexUrl}/graphql`;
     return new Client({
       url: diURL,
       exchanges: [fetchExchange],
@@ -140,7 +140,6 @@ export class DataIndexService {
     offset: number,
   ): Promise<ProcessInstance[]> {
     const graphQlQuery = `{ ProcessInstances(where: {processId: {equal: "${workflowId}" } }, pagination: {limit: ${limit}, offset: ${offset}}) { processName, state, start, lastUpdate, end } }`;
-    ('{ ProcessInstances ( orderBy: { start: ASC }, where: {processId: {isNull: false} } ) { id, processName, processId, state, start, lastUpdate, end, nodes { id }, variables, parentProcessInstance {id, processName, businessKey} } }');
 
     const result = await this.client.query(graphQlQuery, {});
 

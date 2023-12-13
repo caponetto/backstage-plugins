@@ -276,9 +276,9 @@ function setupInternalRoutes(
 
     const workflowDefinition =
       await dataIndexService.getWorkflowDefinition(workflowId);
-    const serviceUrl: string = workflowDefinition.serviceUrl ?? '';
+    const serviceUrl = workflowDefinition.serviceUrl ?? '';
 
-    //source
+    // workflow source
     const definition =
       await sonataFlowService.fetchWorkflowDefinition(workflowId);
 
