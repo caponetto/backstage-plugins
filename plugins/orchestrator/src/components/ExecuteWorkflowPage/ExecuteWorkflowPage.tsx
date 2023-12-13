@@ -15,7 +15,7 @@ import validator from '@rjsf/validator-ajv8';
 import { JSONSchema7 } from 'json-schema';
 
 import {
-  ASSESSMENT_WORKFLOW_TYPE,
+  getWorkflowCategory,
   workflow_title,
   WorkflowCategory,
   WorkflowDataInputSchemaResponse,
@@ -78,13 +78,10 @@ export const ExecuteWorkflowPage = (props: ExecuteWorkflowPageProps) => {
     }
 
     setLoading(true);
-    const workflowType =
-      schemaResponse?.workflowItem.definition.annotations?.find(
-        annotation => annotation === ASSESSMENT_WORKFLOW_TYPE,
-      )
-        ? WorkflowCategory.ASSESSMENT
-        : WorkflowCategory.INFRASTRUCTURE;
-    if (workflowType === WorkflowCategory.ASSESSMENT) {
+    const workflowCategory = getWorkflowCategory(
+      schemaResponse?.workflowItem.definition,
+    );
+    if (workflowCategory === WorkflowCategory.ASSESSMENT) {
       Object.assign(parameters, { businessKey: crypto.randomUUID() });
     } else {
       Object.assign(parameters, { businessKey: businessKey ?? '' });

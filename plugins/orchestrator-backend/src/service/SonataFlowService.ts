@@ -8,6 +8,7 @@ import {
   default_sonataflow_persistance_path,
   default_workflows_path,
   fromWorkflowSource,
+  getWorkflowCategory,
   Job,
   ProcessInstance,
   ProcessInstanceStateValues,
@@ -21,7 +22,6 @@ import {
 import { spawn } from 'child_process';
 import { join, resolve } from 'path';
 
-import { getWorkflowCategory } from '../helpers/workflows';
 import { executeWithRetry } from './Helper';
 
 const SONATA_FLOW_RESOURCES_PATH =
