@@ -12,14 +12,18 @@ export default async function createPlugin(
 ): Promise<Router> {
   const builder = await CatalogBuilder.create(env);
   builder.addProcessor(new ScaffolderEntitiesProcessor());
-  builder.addEntityProvider(
-    await OrchestratorEntityProvider.fromConfig({
-      config: env.config,
-      logger: env.logger,
-      scheduler: env.scheduler,
-      discovery: env.discovery,
-    }),
-  );
+
+  if (env.config.getOptionalBoolean('orchestrator.catalog.isEnabled')) {
+    builder.addEntityProvider(
+      await OrchestratorEntityProvider.fromConfig({
+        config: env.config,
+        logger: env.logger,
+        scheduler: env.scheduler,
+        discovery: env.discovery,
+      }),
+    );
+  }
+
   const { processingEngine, router } = await builder.build();
   await processingEngine.start();
   return router;

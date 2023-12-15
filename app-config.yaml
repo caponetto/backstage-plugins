@@ -137,6 +137,8 @@ dynamicPlugins:
             registerComponent: 'catalogImportPlugin.routes.importPage'
 
 orchestrator:
+  catalog:
+    isEnabled: true
   editor:
     path: /workflow-editor-envelope
   sonataFlowService:
