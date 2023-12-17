@@ -1,4 +1,5 @@
 import React from 'react';
+import { Route, Routes } from 'react-router-dom';
 
 import { TestApiProvider, wrapInTestApp } from '@backstage/test-utils';
 
@@ -8,32 +9,54 @@ import { WorkflowOverview } from '@janus-idp/backstage-plugin-orchestrator-commo
 
 import { fakeWorkflowItem } from '../../__fixtures__/fakeWorkflowItem';
 import { fakeWorkflowOverview } from '../../__fixtures__/fakeWorkflowOverview';
+import { fakeWorkflowSpecs } from '../../__fixtures__/fakeWorkflowSpecs';
 import { veryLongString } from '../../__fixtures__/veryLongString';
 import { orchestratorApiRef } from '../../api';
 import { MockOrchestratorClient } from '../../api/MockOrchestratorClient';
-import { orchestratorRootRouteRef } from '../../routes';
+import {
+  orchestratorRootRouteRef,
+  workflowDefinitionsRouteRef,
+} from '../../routes';
 import { WorkflowDefinitionViewerPage } from './WorkflowDefinitionViewerPage';
 
 const meta = {
   title: 'Orchestrator/next/WorkflowDefinitionViewerPage',
   component: WorkflowDefinitionViewerPage,
   decorators: [
-    (Story, context) => {
-      const api = new MockOrchestratorClient({
+    (
+      Story,
+      context: {
+        args: {
+          workflowOverview?: WorkflowOverview;
+          api?: MockOrchestratorClient;
+        };
+      },
+    ) => {
+      const defaultApi = new MockOrchestratorClient({
         getWorkflowOverviewResponse: Promise.resolve(
           (context.args as { workflowOverview: WorkflowOverview })
             .workflowOverview,
         ),
         getWorkflowResponse: Promise.resolve(fakeWorkflowItem),
+        getSpecsResponse: Promise.resolve(fakeWorkflowSpecs),
+        createWorkflowDefinitionResponse: Promise.resolve(fakeWorkflowItem),
       });
       return wrapInTestApp(
-        <TestApiProvider apis={[[orchestratorApiRef, api]]}>
-          <Story />
+        <TestApiProvider
+          apis={[[orchestratorApiRef, context.args.api || defaultApi]]}
+        >
+          <Routes>
+            <Route
+              path={workflowDefinitionsRouteRef.path}
+              element={<Story />}
+            />
+          </Routes>
         </TestApiProvider>,
         {
           mountedRoutes: {
             '/orchestrator': orchestratorRootRouteRef,
           },
+          routeEntries: [`/workflows/yaml/${fakeWorkflowItem.definition.id}`],
         },
       );
     },
@@ -74,5 +97,10 @@ export const LongDesription: Story = {
 
 export const Loading: Story = {
   name: 'Loading',
-  args: {},
+  args: {
+    api: new MockOrchestratorClient({
+      getWorkflowOverviewResponse: new Promise(() => {}),
+      getWorkflowResponse: new Promise(() => {}),
+    }),
+  },
 };
