@@ -1,12 +1,17 @@
 import React from 'react';
 import { Route, Routes } from 'react-router-dom';
 
+import { featureFlagsApiRef } from '@backstage/core-plugin-api';
 import { TestApiProvider, wrapInTestApp } from '@backstage/test-utils';
 
 import { Meta, StoryObj } from '@storybook/react';
 
-import { WorkflowOverview } from '@janus-idp/backstage-plugin-orchestrator-common';
+import {
+  FEATURE_FLAG_DEVELOPER_MODE,
+  WorkflowOverview,
+} from '@janus-idp/backstage-plugin-orchestrator-common';
 
+import { createFakeFeatureFlagsApi } from '../../__fixtures__/fakeFeatureFlagsApi';
 import { fakeWorkflowItem } from '../../__fixtures__/fakeWorkflowItem';
 import { fakeWorkflowOverview } from '../../__fixtures__/fakeWorkflowOverview';
 import { fakeWorkflowSpecs } from '../../__fixtures__/fakeWorkflowSpecs';
@@ -29,21 +34,27 @@ const meta = {
         args: {
           workflowOverview?: WorkflowOverview;
           api?: MockOrchestratorClient;
+          featureFlags?: string[];
         };
       },
     ) => {
       const defaultApi = new MockOrchestratorClient({
         getWorkflowOverviewResponse: Promise.resolve(
-          (context.args as { workflowOverview: WorkflowOverview })
-            .workflowOverview,
+          context.args.workflowOverview || fakeWorkflowOverview,
         ),
         getWorkflowResponse: Promise.resolve(fakeWorkflowItem),
         getSpecsResponse: Promise.resolve(fakeWorkflowSpecs),
         createWorkflowDefinitionResponse: Promise.resolve(fakeWorkflowItem),
       });
+      const featureFlagsApi = createFakeFeatureFlagsApi(
+        context.args.featureFlags,
+      );
       return wrapInTestApp(
         <TestApiProvider
-          apis={[[orchestratorApiRef, context.args.api || defaultApi]]}
+          apis={[
+            [orchestratorApiRef, context.args.api || defaultApi],
+            [featureFlagsApiRef, featureFlagsApi],
+          ]}
         >
           <Routes>
             <Route
@@ -68,9 +79,6 @@ type Story = StoryObj<typeof meta>;
 
 export const WorkflowDefinitionViewerPageStory: Story = {
   name: 'Has running workflows',
-  args: {
-    workflowOverview: fakeWorkflowOverview,
-  },
 };
 
 export const NoRunningWorkflows: Story = {
@@ -102,5 +110,12 @@ export const Loading: Story = {
       getWorkflowOverviewResponse: new Promise(() => {}),
       getWorkflowResponse: new Promise(() => {}),
     }),
+  },
+};
+
+export const Editable: Story = {
+  name: 'Editable',
+  args: {
+    featureFlags: [FEATURE_FLAG_DEVELOPER_MODE],
   },
 };
