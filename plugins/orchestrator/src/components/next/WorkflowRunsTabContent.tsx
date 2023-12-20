@@ -142,9 +142,6 @@ export const WorkflowRunsTabContent = () => {
           columns={columns}
           data={filteredData}
           // detailPanel={DetailPanel}
-          parentChildData={(row, rows) =>
-            rows.find(a => a.id === row.parentInstanceId)
-          }
         />
       )}
     </WrapperInfoCard>

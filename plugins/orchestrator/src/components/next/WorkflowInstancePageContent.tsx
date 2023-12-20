@@ -24,7 +24,6 @@ export type WorkflowRunDetail = {
   started: string;
   duration: string;
   category?: string;
-  parentInstanceId?: string;
   description?: string;
   nextWorflowSuggestions?: {
     [key: string]: WorkflowSuggestion | WorkflowSuggestion[];
@@ -59,7 +58,6 @@ export const mapProcessInstanceToDetails = (
     category: instance.category,
     status: instance.state,
     description: instance.description,
-    parentInstanceId: instance.parentProcessInstance?.id,
     nextWorflowSuggestions,
   };
 
