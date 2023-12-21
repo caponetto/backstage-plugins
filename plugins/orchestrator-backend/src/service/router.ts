@@ -82,6 +82,8 @@ export async function createBackendRouter(
     urlReader,
   );
 
+  await workflowService.reloadWorkflows();
+
   setupInternalRoutes(
     router,
     args.sonataFlowService,
@@ -91,8 +93,6 @@ export async function createBackendRouter(
     args.dataIndexService,
   );
   setupExternalRoutes(router, discovery, scaffolderService);
-
-  await workflowService.reloadWorkflows();
 
   await eventBroker.publish({
     topic: ORCHESTRATOR_SERVICE_READY_TOPIC,
