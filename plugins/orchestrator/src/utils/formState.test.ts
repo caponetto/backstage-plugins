@@ -1,23 +1,4 @@
-import {
-  flattenParametersFromFormState,
-  isJsonArray,
-  isJsonObject,
-  isJsonPrimitive,
-} from './formState';
-
-describe('formState::isJsonPrimitive', () => {
-  it('should return true for JsonPrimitive types', () => {
-    expect(isJsonPrimitive(42)).toBe(true);
-    expect(isJsonPrimitive('hello')).toBe(true);
-    expect(isJsonPrimitive(true)).toBe(true);
-    expect(isJsonPrimitive(null)).toBe(true);
-  });
-
-  it('should return false for non-JsonPrimitive types', () => {
-    expect(isJsonPrimitive({})).toBe(false);
-    expect(isJsonPrimitive([])).toBe(false);
-  });
-});
+import { flattenParametersFromFormState, isJsonObject } from './formState';
 
 describe('formState::isJsonObject', () => {
   it('should return true for JsonObject types', () => {
@@ -28,18 +9,6 @@ describe('formState::isJsonObject', () => {
     expect(isJsonObject('string')).toBe(false);
     expect(isJsonObject(['array'])).toBe(false);
     expect(isJsonObject(null)).toBe(false);
-  });
-});
-
-describe('formState::isJsonArray', () => {
-  it('should return true for JsonArray types', () => {
-    expect(isJsonArray(['item'])).toBe(true);
-  });
-
-  it('should return false for non-JsonArray types', () => {
-    expect(isJsonArray('string')).toBe(false);
-    expect(isJsonArray({ key: 'value' })).toBe(false);
-    expect(isJsonArray(null)).toBe(false);
   });
 });
 

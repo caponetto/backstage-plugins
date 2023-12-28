@@ -1,25 +1,7 @@
-import {
-  JsonArray,
-  JsonObject,
-  JsonPrimitive,
-  JsonValue,
-} from '@backstage/types';
-
-export function isJsonPrimitive(value: JsonValue): value is JsonPrimitive {
-  return (
-    typeof value === 'number' ||
-    typeof value === 'string' ||
-    typeof value === 'boolean' ||
-    value === null
-  );
-}
+import { JsonObject, JsonValue } from '@backstage/types';
 
 export function isJsonObject(value: JsonValue): value is JsonObject {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
-
-export function isJsonArray(value: JsonValue): value is JsonArray {
-  return Array.isArray(value);
 }
 
 export function flattenParametersFromFormState(
