@@ -46,7 +46,7 @@ export const ExecuteWorkflowPage = (props: ExecuteWorkflowPageProps) => {
 
   const handleExecute = useCallback(async () => {
     const parameters: Record<string, JsonValue> = {};
-    if (value?.dataInputSchema && formState) {
+    if (value?.schema && formState) {
       for (const key of Object.keys(formState)) {
         const property = formState[key];
         Object.assign(parameters, property);
@@ -82,7 +82,7 @@ export const ExecuteWorkflowPage = (props: ExecuteWorkflowPageProps) => {
       {isReady && (
         <InfoCard title={value?.workflowItem.definition.name ?? workflowId}>
           {/* The multi-step form should be here */}
-          {value?.dataInputSchema ? (
+          {value?.schema ? (
             <>{executeButton}</>
           ) : (
             <Grid container spacing={2} direction="column">

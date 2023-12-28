@@ -85,7 +85,7 @@ export const ExecuteWorkflowPage = () => {
       }
 
       let parameters: Record<string, JsonValue> = {};
-      if (schemaResponse.dataInputSchema?.mainSchema) {
+      if (schemaResponse.schema) {
         if (!formRef.current?.validateForm()) {
           return;
         }
@@ -184,10 +184,10 @@ export const ExecuteWorkflowPage = () => {
             </>
           }
         >
-          {schemaResponse?.dataInputSchema?.mainSchema ? (
+          {schemaResponse?.schema ? (
             <WrappedForm
               ref={formRef}
-              schema={schemaResponse.dataInputSchema.mainSchema}
+              schema={schemaResponse.schema}
               validator={validator}
               showErrorList={false}
               onChange={onFormChanged}
