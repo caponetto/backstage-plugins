@@ -34,9 +34,9 @@ export function flattenParametersFromFormState(
   Object.entries(formState).forEach(([key, value]) => {
     if (value === undefined) {
       parameters[key] = '';
-    } else if (isJsonPrimitive(value) || isJsonArray(value)) {
+    } else if (!isJsonObject(value)) {
       parameters[key] = value;
-    } else if (isJsonObject(value)) {
+    } else {
       // Flatten nested objects
       Object.entries(value).forEach(([nestedKey, nestedValue]) => {
         // Next levels are simply returned as-is
