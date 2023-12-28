@@ -39,7 +39,7 @@ export const ExecuteWorkflowPageStory: Story = {
               new MockOrchestratorClient({
                 getWorkflowDataInputSchemaResponse: Promise.resolve({
                   workflowItem: fakeWorkflowItem,
-                  schema: undefined,
+                  dataInputSchema: undefined,
                 }),
               }),
             ],

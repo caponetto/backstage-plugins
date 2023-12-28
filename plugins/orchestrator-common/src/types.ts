@@ -53,9 +53,14 @@ export interface WorkflowSpecFile {
   content: OpenAPIV3.Document;
 }
 
+export interface DataInputSchema {
+  mainSchema: JSONSchema7;
+  refSchemas?: JSONSchema7[];
+}
+
 export interface WorkflowDataInputSchemaResponse {
   workflowItem: WorkflowItem;
-  schema: JSONSchema7 | undefined;
+  dataInputSchema: DataInputSchema | undefined;
 }
 
 export interface WorkflowExecutionResponse {

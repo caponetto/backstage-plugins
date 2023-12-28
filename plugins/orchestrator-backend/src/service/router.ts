@@ -6,10 +6,10 @@ import { JsonObject, JsonValue } from '@backstage/types';
 
 import express from 'express';
 import Router from 'express-promise-router';
-import { JSONSchema7 } from 'json-schema';
 import { Logger } from 'winston';
 
 import {
+  DataInputSchema,
   fromWorkflowSource,
   orchestrator_service_ready_topic,
   WorkflowDataInputSchemaResponse,
@@ -92,6 +92,7 @@ export async function createBackendRouter(
     workflowService,
     openApiService,
     jiraService,
+    dataInputSchemaService,
   );
   setupExternalRoutes(router, discovery, scaffolderService);
 
@@ -125,6 +126,7 @@ function setupInternalRoutes(
   workflowService: WorkflowService,
   openApiService: OpenApiService,
   jiraService: JiraService,
+  dataInputSchemaService: DataInputSchemaService,
 ) {
   router.get('/workflows/definitions', async (_, response) => {
     const swfs = await DataIndexService.getWorkflowDefinitions();
@@ -266,7 +268,7 @@ function setupInternalRoutes(
     res.status(200).json(jobs);
   });
 
-  router.get('/workflows/:workflowId/schema', async (req, res) => {
+  router.get('/workflows/:workflowId/inputSchema', async (req, res) => {
     const {
       params: { workflowId },
     } = req;
@@ -288,7 +290,7 @@ function setupInternalRoutes(
 
     const workflowItem: WorkflowItem = { uri, definition };
 
-    let schema: JSONSchema7 | undefined = undefined;
+    let dataInputSchema: DataInputSchema | undefined = undefined;
 
     if (definition.dataInputSchema) {
       const workflowInfo =
@@ -299,12 +301,21 @@ function setupInternalRoutes(
         return;
       }
 
-      schema = workflowInfo.inputSchema;
+      if (!workflowInfo.inputSchema) {
+        res
+          .status(500)
+          .send(`Couldn't fetch workflow input schema ${workflowId}`);
+        return;
+      }
+
+      dataInputSchema = dataInputSchemaService.parseComposition(
+        workflowInfo.inputSchema,
+      );
     }
 
     const response: WorkflowDataInputSchemaResponse = {
-      workflowItem: workflowItem,
-      schema,
+      workflowItem,
+      dataInputSchema,
     };
 
     res.status(200).json(response);
