@@ -299,7 +299,23 @@ function setupInternalRoutes(
         return;
       }
 
+      if (!workflowInfo.inputSchema) {
+        res
+          .status(500)
+          .send(`Couldn't fetch workflow input schema ${workflowId}`);
+        return;
+      }
+
       schema = workflowInfo.inputSchema;
+
+      // Add ref schemas (steps) to `required` array, otherwise the form validation might not behave as expected
+      const refNames = Object.entries(schema.properties ?? {})
+        .filter(([_, v]) => typeof v === 'object' && v.$ref)
+        .map(([k]) => k);
+
+      if (refNames.length) {
+        schema.required = [...(schema.required ?? []), ...refNames];
+      }
     }
 
     const response: WorkflowDataInputSchemaResponse = {

@@ -86,11 +86,14 @@ export const ExecuteWorkflowPage = () => {
 
       let parameters: Record<string, JsonValue> = {};
       if (schemaResponse.schema) {
+        setLiveFormValidate(true);
+
         if (!formRef.current?.validateForm()) {
           return;
         }
         // Flatten parameters are only necessary for this case where we show one form for all ref schemas (steps).
         parameters = flattenParametersFromFormState(formState);
+        setLiveFormValidate(false);
       } else {
         if (!jsonTextAreaRef.current?.validate()) {
           return;
@@ -109,14 +112,12 @@ export const ExecuteWorkflowPage = () => {
       }
 
       setLoading(true);
-      setLiveFormValidate(true);
 
       const response = await orchestratorApi.executeWorkflow({
         workflowId,
         parameters,
       });
 
-      setLiveFormValidate(false);
       setLoading(false);
 
       navigate(instanceLink({ instanceId: response.id }));
