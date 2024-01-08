@@ -148,7 +148,9 @@ export class MockOrchestratorClient implements OrchestratorApi {
       !hasOwnProp(this._mockData, 'getWorkflowDataInputSchemaResponse') ||
       !isNonNullable(this._mockData.getWorkflowDataInputSchemaResponse)
     ) {
-      throw new Error(`[getWorkflowDataInputSchema]: No mock data available`);
+      throw new Error(
+        `[getWorkflowDataInputSchemaResponse]: No mock data available`,
+      );
     }
 
     return Promise.resolve(this._mockData.getWorkflowDataInputSchemaResponse);

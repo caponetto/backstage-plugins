@@ -3,9 +3,10 @@ import React from 'react';
 import { alertApiRef, errorApiRef, useApi } from '@backstage/core-plugin-api';
 
 import { useController } from '@kie-tools-core/react-hooks/dist/useController';
-import { Button, CircularProgress, DialogActions } from '@material-ui/core';
+import { Button, DialogActions } from '@material-ui/core';
 
 import { orchestratorApiRef } from '../../api';
+import SubmitBtn from '../SubmitBtn/SubmitBtn';
 import {
   EditorViewKind,
   WorkflowEditorRef,
@@ -85,16 +86,9 @@ const EditWorkflowDialog = ({
           <Button variant="outlined" color="primary" onClick={close}>
             Cancel
           </Button>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={() => handleSave()}
-            disabled={saving}
-            type="submit"
-            startIcon={saving ? <CircularProgress size="1rem" /> : null}
-          >
+          <SubmitBtn handleClick={() => handleSave()} submitting={saving}>
             Save
-          </Button>
+          </SubmitBtn>
         </DialogActions>
       }
       close={close}
