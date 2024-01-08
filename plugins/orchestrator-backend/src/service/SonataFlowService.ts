@@ -8,6 +8,7 @@ import {
   DEFAULT_SONATAFLOW_PERSISTANCE_PATH,
   DEFAULT_WORKFLOWS_PATH,
   fromWorkflowSource,
+  getWorkflowCategory,
   ProcessInstance,
   ProcessInstanceStateValues,
   WorkflowDefinition,
@@ -306,22 +307,6 @@ export class SonataFlowService {
     }
     return false;
   }
-
-  private extractWorkflowType(
-    workflowDef: WorkflowDefinition,
-  ): string | undefined {
-    if (workflowDef.annotations) {
-      for (const annotation of workflowDef.annotations) {
-        if (annotation.includes('workflow-type/')) {
-          const value: string = annotation.split('/')[1].trim();
-          return value.charAt(0).toUpperCase() + value.slice(1);
-        }
-      }
-    }
-
-    return undefined;
-  }
-
   private createLauncherCommand(): LauncherCommand {
     const resourcesAbsPath = resolve(
       join(this.connection.resourcesPath, DEFAULT_WORKFLOWS_PATH),
