@@ -48,7 +48,7 @@ export class DataIndexService {
   public async getWorkflowDefinition(
     definitionId: string,
   ): Promise<WorkflowInfo> {
-    const graphQlQuery = `{ ProcessDefinitions ( where: {id: {equal: "${definitionId}" } } ) { id, name, version, type, endpoint, serviceUrl } }`;
+    const graphQlQuery = `{ ProcessDefinitions ( where: {id: {equal: "${definitionId}" } } ) { id, name, version, type, endpoint, serviceUrl, source } }`;
 
     const result = await this.client.query(graphQlQuery, {});
 
@@ -56,7 +56,7 @@ export class DataIndexService {
       this.logger.error(`Error fetching workflow definition ${result.error}`);
       throw result.error;
     }
-    return result.data.ProcessDefinitions.pop();
+    return (result.data.ProcessDefinitions as WorkflowInfo[])[0];
   }
 
   public async getWorkflowDefinitions(): Promise<WorkflowInfo[]> {
@@ -104,25 +104,29 @@ export class DataIndexService {
 
     const processInstances = await Promise.all(
       processInstancesSrc.map(async instance => {
-        const workflowItem: WorkflowInfo = await this.getWorkflowDefinition(
-          instance.processId,
-        );
-        if (!workflowItem?.source) {
-          throw new Error(
-            `Workflow defintion is required to fetch instance ${instance.id}`,
-          );
-        }
-        const workflowDefinitionSrc: WorkflowDefinition = fromWorkflowSource(
-          workflowItem.source,
-        );
-        if (workflowItem) {
-          instance.category = getWorkflowCategory(workflowDefinitionSrc);
-          instance.description = workflowItem.description;
-        }
-        return instance;
+        return await this.getWorkflowDefinitionFromInstance(instance);
       }),
     );
     return processInstances;
+  }
+
+  private async getWorkflowDefinitionFromInstance(instance: ProcessInstance) {
+    const workflowItem: WorkflowInfo = await this.getWorkflowDefinition(
+      instance.processId,
+    );
+    if (!workflowItem?.source) {
+      throw new Error(
+        `Workflow defintion is required to fetch instance ${instance.id}`,
+      );
+    }
+    const workflowDefinitionSrc: WorkflowDefinition = fromWorkflowSource(
+      workflowItem.source,
+    );
+    if (workflowItem) {
+      instance.category = getWorkflowCategory(workflowDefinitionSrc);
+      instance.description = workflowItem.description;
+    }
+    return instance;
   }
 
   public async fetchWorkflowSource(
@@ -178,7 +182,7 @@ export class DataIndexService {
 
   public async fetchProcessInstance(
     instanceId: string,
-  ): Promise<ProcessInstance[] | undefined> {
+  ): Promise<ProcessInstance | undefined> {
     const graphQlQuery = `{ ProcessInstances (where: { id: {equal: "${instanceId}" } } ) { id, processName, processId, businessKey, state, start, lastUpdate, end, nodes { id, nodeId, definitionId, type, name, enter, exit }, variables, parentProcessInstance {id, processName, businessKey}, error { nodeDefinitionId, message} } }`;
 
     const result = await this.client.query(graphQlQuery, {});
@@ -190,7 +194,7 @@ export class DataIndexService {
       throw result.error;
     }
 
-    const instance = result.data.ProcessInstances?.pop();
+    const instance = (result.data.ProcessInstances as ProcessInstance[])[0];
     const workflowItem: WorkflowInfo = await this.getWorkflowDefinition(
       instance.processId,
     );

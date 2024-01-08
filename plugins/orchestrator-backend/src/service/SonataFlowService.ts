@@ -8,7 +8,6 @@ import {
   DEFAULT_SONATAFLOW_PERSISTANCE_PATH,
   DEFAULT_WORKFLOWS_PATH,
   fromWorkflowSource,
-  getWorkflowCategory,
   ProcessInstance,
   ProcessInstanceStateValues,
   WorkflowDefinition,
@@ -339,7 +338,10 @@ export class SonataFlowService {
     }
 
     launcherArgs.push('--rm');
-    launcherArgs.push('-p', `${this.connection.port ?? 80}:8080`);
+    launcherArgs.push('-e', `QUARKUS_HTTP_PORT=${this.connection.port}`);
+
+    launcherArgs.push('-p', `${this.connection.port}:${this.connection.port}`);
+    launcherArgs.push('-e', `KOGITO_SERVICE_URL=${this.devmodeUrl}`);
     launcherArgs.push(
       '-v',
       `${resourcesAbsPath}:${SONATA_FLOW_RESOURCES_PATH}`,
