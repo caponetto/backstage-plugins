@@ -116,7 +116,6 @@ export class SonataFlowService {
     } catch (error) {
       this.logger.error(`Error when fetching workflow uri: ${error}`);
     }
-
     return undefined;
   }
 
