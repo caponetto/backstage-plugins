@@ -67,6 +67,7 @@ export const DEFAULT_SONATAFLOW_PERSISTANCE_PATH = '/home/kogito/persistence';
 export const DEFAULT_CATALOG_OWNER = 'orchestrator';
 export const DEFAULT_CATALOG_ENVIRONMENT = 'development';
 export const DEFAULT_EDITOR_PATH = 'https://start.kubesmarts.org';
+export const DEFAULT_SONATAFLOW_BASE_URL = 'http://localhost';
 
 export const DEFAULT_WORKFLOWS_PATH = 'workflows';
 

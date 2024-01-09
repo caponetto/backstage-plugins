@@ -4,6 +4,7 @@ import { OpenAPIV3 } from 'openapi-types';
 import { Logger } from 'winston';
 
 import {
+  DEFAULT_SONATAFLOW_BASE_URL,
   DEFAULT_SONATAFLOW_CONTAINER_IMAGE,
   DEFAULT_SONATAFLOW_PERSISTANCE_PATH,
   DEFAULT_WORKFLOWS_PATH,
@@ -358,7 +359,9 @@ export class SonataFlowService {
       config.getOptionalBoolean('orchestrator.sonataFlowService.autoStart') ??
       false;
 
-    const host = config.getString('orchestrator.sonataFlowService.baseUrl');
+    const host =
+      config.getOptionalString('orchestrator.sonataFlowService.baseUrl') ??
+      DEFAULT_SONATAFLOW_BASE_URL;
     const port = config.getOptionalNumber(
       'orchestrator.sonataFlowService.port',
     );
