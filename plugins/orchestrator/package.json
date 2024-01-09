@@ -65,6 +65,8 @@
     "@material-ui/icons": "^4.11.3",
     "@material-ui/lab": "^4.0.0-alpha.45",
     "@monaco-editor/react": "^4.6.0",
+    "@mui/icons-material": "^5.15.3",
+    "@rjsf/core": "^3.2.1",
     "@rjsf/core-v5": "npm:@rjsf/core@5.7.3",
     "@rjsf/material-ui-v5": "npm:@rjsf/material-ui@5.7.3",
     "@rjsf/utils": "5.7.3",
