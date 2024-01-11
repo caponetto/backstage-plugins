@@ -85,9 +85,6 @@ export const ExecuteWorkflowPageLoadingStory: Story = {
 export const ExecuteWorkflowPageResponseErrorStory: Story = {
   name: 'Response  Error',
   args: {
-    schemaResponse: () =>
-      new Promise((_, reject) => {
-        reject(new Error('Testing error'));
-      }),
+    schemaResponse: () => Promise.reject(new Error('Testing error')),
   },
 };

@@ -106,7 +106,7 @@ const StepperForm = ({
     <>
       <Stepper activeStep={activeStep} orientation="vertical">
         {refSchemas.map((schema, index) => (
-          <Step key={index}>
+          <Step key={schema.$id ?? index}>
             <StepLabel
               aria-label={`Step ${index + 1} ${schema.title}`}
               aria-disabled="false"
@@ -125,7 +125,7 @@ const StepperForm = ({
                 schema={{ ...schema, title: '' }} // title is in step
                 onSubmit={e => {
                   const newDataObjects = [...formDataObjects];
-                  newDataObjects.splice(index, 1, e.formData || {});
+                  newDataObjects.splice(index, 1, e.formData ?? {});
                   setFormDataObjects(newDataObjects);
                   setActiveStep(activeStep + 1);
                 }}

@@ -121,10 +121,7 @@ export const ExecuteWorkflowPage = () => {
   }
 
   return (
-    <BaseOrchestratorPage
-      title="Workflow Orchestrator"
-      noPadding={loading ? true : false}
-    >
+    <BaseOrchestratorPage title="Workflow Orchestrator" noPadding={loading}>
       {pageContent}
     </BaseOrchestratorPage>
   );
