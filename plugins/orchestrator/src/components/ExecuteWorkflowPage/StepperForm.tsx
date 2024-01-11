@@ -18,48 +18,36 @@ import { Theme as MuiTheme } from '@rjsf/material-ui-v5';
 import validator from '@rjsf/validator-ajv8';
 import { JSONSchema7 } from 'json-schema';
 
-import SubmitBtn from '../SubmitBtn/SubmitBtn';
+import SubmitButton from '../SubmitButton/SubmitButton';
 
 const MuiForm = withTheme<Record<string, JsonValue>>(MuiTheme);
 
 const ReviewStep = ({
   busy,
   formDataObjects,
-  refSchemas,
   handleBack,
   handleReset,
   handleExecute,
 }: {
   busy: boolean;
   formDataObjects: Record<string, JsonValue>[];
-  refSchemas: JSONSchema7[];
   handleBack: () => void;
   handleReset: () => void;
   handleExecute: () => void;
 }) => {
-  const orderedFormData = React.useMemo<Record<string, JsonValue>>(() => {
-    return refSchemas.reduce<Record<string, JsonValue>>(
-      (prevFormData, refSchema, index) => {
-        const orderedStapFormData = Object.keys(
-          refSchema.properties || {},
-        ).reduce<Record<string, JsonValue>>(
-          (prevStepForm, key) => ({
-            ...prevStepForm,
-            [key]: formDataObjects[index][key],
-          }),
-          {},
-        );
-        return { ...prevFormData, ...orderedStapFormData };
-      },
-      {},
-    );
-  }, [formDataObjects, refSchemas]);
-
+  const combinedFormData = React.useMemo(
+    () =>
+      formDataObjects.reduce<Record<string, JsonValue>>(
+        (prev, cur) => ({ ...prev, ...cur }),
+        {},
+      ),
+    [formDataObjects],
+  );
   return (
     <Content>
       <Paper square elevation={0}>
-        <Typography variant="h6">Review and execute</Typography>
-        <StructuredMetadataTable dense metadata={orderedFormData} />
+        <Typography variant="h6">Review and run</Typography>
+        <StructuredMetadataTable dense metadata={combinedFormData} />
         <Box mb={4} />
         <Button onClick={handleBack} disabled={busy}>
           Back
@@ -67,9 +55,9 @@ const ReviewStep = ({
         <Button onClick={handleReset} disabled={busy}>
           Reset
         </Button>
-        <SubmitBtn handleClick={handleExecute} submitting={busy}>
+        <SubmitButton handleClick={handleExecute} submitting={busy}>
           Run
-        </SubmitBtn>
+        </SubmitButton>
       </Paper>
     </Content>
   );
@@ -155,7 +143,6 @@ const StepperForm = ({
       </Stepper>
       {activeStep === refSchemas.length && (
         <ReviewStep
-          refSchemas={refSchemas}
           formDataObjects={formDataObjects}
           handleBack={handleBack}
           handleReset={() => {

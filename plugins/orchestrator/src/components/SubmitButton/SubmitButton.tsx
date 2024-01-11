@@ -2,7 +2,7 @@ import React from 'react';
 
 import { Button, CircularProgress } from '@material-ui/core';
 
-const SubmitBtn = ({
+const SubmitButton = ({
   submitting,
   handleClick,
   children,
@@ -23,4 +23,4 @@ const SubmitBtn = ({
   </Button>
 );
 
-export default SubmitBtn;
+export default SubmitButton;

@@ -6,7 +6,7 @@ import { useController } from '@kie-tools-core/react-hooks/dist/useController';
 import { Button, DialogActions } from '@material-ui/core';
 
 import { orchestratorApiRef } from '../../api';
-import SubmitBtn from '../SubmitBtn/SubmitBtn';
+import SubmitButton from '../SubmitButton/SubmitButton';
 import {
   EditorViewKind,
   WorkflowEditorRef,
@@ -86,9 +86,9 @@ const EditWorkflowDialog = ({
           <Button variant="outlined" color="primary" onClick={close}>
             Cancel
           </Button>
-          <SubmitBtn handleClick={() => handleSave()} submitting={saving}>
+          <SubmitButton handleClick={() => handleSave()} submitting={saving}>
             Save
-          </SubmitBtn>
+          </SubmitButton>
         </DialogActions>
       }
       close={close}
