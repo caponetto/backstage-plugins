@@ -76,7 +76,9 @@ export const ExecuteWorkflowPage = (props: ExecuteWorkflowPageProps) => {
     }
 
     setLoading(true);
-    Object.assign(parameters, { businessKey: businessKey ?? '' });
+    if (businessKey !== undefined) {
+      Object.assign(parameters, { businessKey: businessKey });
+    }
     const response = await orchestratorApi.executeWorkflow({
       workflowId,
       parameters,
