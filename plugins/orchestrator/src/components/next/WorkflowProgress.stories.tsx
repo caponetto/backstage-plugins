@@ -13,11 +13,11 @@ const meta = {
     layout: 'centered',
   },
   argTypes: {
-    status: {
+    workflowStatus: {
       control: 'select',
       options: ['ACTIVE', 'COMPLETED', 'ABORTED', 'SUSPENDED', 'ERROR'],
     },
-    error: {
+    workflowError: {
       control: 'object',
     },
   },
@@ -29,7 +29,7 @@ type Story = StoryObj<typeof meta>;
 export const SampleStory: Story = {
   name: 'Sample',
   args: {
-    nodes: fakeNodeInstances,
-    status: 'ACTIVE',
+    workflowNodes: fakeNodeInstances,
+    workflowStatus: 'ACTIVE',
   },
 };
