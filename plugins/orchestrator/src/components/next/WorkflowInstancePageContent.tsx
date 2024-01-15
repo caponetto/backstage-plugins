@@ -23,6 +23,7 @@ import { WorkflowInstanceStatusIndicator } from './WorkflowInstanceStatusIndicat
 import { WorkflowProgress } from './WorkflowProgress';
 import { WorkflowRunDetail, WorkflowSuggestion } from './WorkflowRunDetail';
 import { WorkflowVariablesViewer } from './WorkflowVariablesViewer';
+import classNames from 'classnames';
 
 export const mapProcessInstanceToDetails = (
   instance: ProcessInstance,
@@ -85,9 +86,16 @@ const getNextWorkflows = (
 };
 
 const useStyles = makeStyles(_ => ({
-  card: {
+  topRowCard: {
+    height: '252px',
+  },
+  middleRowCard: {
+    height: 'calc(2 * 252px)',
+  },
+  bottomRowCard: {
     height: '100%',
   },
+  autoOverflow: { overflow: 'auto' },
 }));
 
 export const WorkflowInstancePageContent: React.FC<{
@@ -152,7 +160,11 @@ export const WorkflowInstancePageContent: React.FC<{
     <Content noPadding>
       <Grid container>
         <Grid item xs={6}>
-          <InfoCard title="Details" divider={false} className={styles.card}>
+          <InfoCard
+            title="Details"
+            divider={false}
+            className={styles.topRowCard}
+          >
             <Grid container spacing={3}>
               {detailLabelValues.map(item => (
                 <Grid item xs={4} key={item.label}>
@@ -164,7 +176,11 @@ export const WorkflowInstancePageContent: React.FC<{
         </Grid>
 
         <Grid item xs={6}>
-          <InfoCard title="Results" divider={false} className={styles.card}>
+          <InfoCard
+            title="Results"
+            divider={false}
+            className={styles.topRowCard}
+          >
             {nextWorkflows.length === 0 ? (
               <WorkflowVariablesViewer variables={processInstance.variables} />
             ) : (
@@ -180,7 +196,10 @@ export const WorkflowInstancePageContent: React.FC<{
         </Grid>
 
         <Grid item xs={6}>
-          <InfoCard title="Workflow definition" className={styles.card}>
+          <InfoCard
+            title="Workflow definition"
+            className={styles.middleRowCard}
+          >
             <WorkflowEditor
               workflowId={processInstance.processId}
               kind={EditorViewKind.DIAGRAM_VIEWER}
@@ -194,7 +213,7 @@ export const WorkflowInstancePageContent: React.FC<{
           <InfoCard
             title="Workflow progress"
             divider={false}
-            className={styles.card}
+            className={classNames(styles.middleRowCard, styles.autoOverflow)}
           >
             <WorkflowProgress
               workflowError={processInstance.error}
@@ -206,7 +225,7 @@ export const WorkflowInstancePageContent: React.FC<{
 
         {nextWorkflows.length > 0 ? (
           <Grid item xs={12}>
-            <InfoCard title="Variables">
+            <InfoCard title="Variables" className={styles.bottomRowCard}>
               <WorkflowVariablesViewer variables={processInstance.variables} />
             </InfoCard>
           </Grid>
