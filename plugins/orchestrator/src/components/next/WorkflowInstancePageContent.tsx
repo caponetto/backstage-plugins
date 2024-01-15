@@ -183,7 +183,7 @@ export const WorkflowInstancePageContent: React.FC<{
           <InfoCard title="Workflow definition" className={styles.card}>
             <WorkflowEditor
               workflowId={processInstance.processId}
-              kind={EditorViewKind.AUTHORING}
+              kind={EditorViewKind.DIAGRAM_VIEWER}
               editorMode="text"
               readonly
             />
