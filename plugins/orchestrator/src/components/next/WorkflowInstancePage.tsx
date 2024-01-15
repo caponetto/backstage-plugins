@@ -37,7 +37,6 @@ export const WorkflowInstancePage = ({
 
   const handleAbort = React.useCallback(async () => {
     if (value) {
-      // TODO(jkilzi): Show a dialog instead for confirming the abort action of a running WF
       // eslint-disable-next-line no-alert
       const yes = window.confirm(
         'Are you sure you want to abort this instance?',
@@ -48,7 +47,6 @@ export const WorkflowInstancePage = ({
           await orchestratorApi.abortWorkflow(value.id);
           retry();
         } catch (e) {
-          // TODO(jkilzi): Show a dialog instead when aborting a running WF fails
           // eslint-disable-next-line no-alert
           window.alert(
             `The abort operation failed with the following error: ${
