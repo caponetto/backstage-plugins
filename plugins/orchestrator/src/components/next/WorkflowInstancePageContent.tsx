@@ -23,7 +23,6 @@ import { WorkflowInstanceStatusIndicator } from './WorkflowInstanceStatusIndicat
 import { WorkflowProgress } from './WorkflowProgress';
 import { WorkflowRunDetail, WorkflowSuggestion } from './WorkflowRunDetail';
 import { WorkflowVariablesViewer } from './WorkflowVariablesViewer';
-import classNames from 'classnames';
 
 export const mapProcessInstanceToDetails = (
   instance: ProcessInstance,
@@ -180,6 +179,7 @@ export const WorkflowInstancePageContent: React.FC<{
             title="Results"
             divider={false}
             className={styles.topRowCard}
+            cardClassName={styles.autoOverflow}
           >
             {nextWorkflows.length === 0 ? (
               <WorkflowVariablesViewer variables={processInstance.variables} />
@@ -213,7 +213,8 @@ export const WorkflowInstancePageContent: React.FC<{
           <InfoCard
             title="Workflow progress"
             divider={false}
-            className={classNames(styles.middleRowCard, styles.autoOverflow)}
+            className={styles.middleRowCard}
+            cardClassName={styles.autoOverflow}
           >
             <WorkflowProgress
               workflowError={processInstance.error}
@@ -225,7 +226,11 @@ export const WorkflowInstancePageContent: React.FC<{
 
         {nextWorkflows.length > 0 ? (
           <Grid item xs={12}>
-            <InfoCard title="Variables" className={styles.bottomRowCard}>
+            <InfoCard
+              title="Variables"
+              className={styles.bottomRowCard}
+              cardClassName={styles.autoOverflow}
+            >
               <WorkflowVariablesViewer variables={processInstance.variables} />
             </InfoCard>
           </Grid>

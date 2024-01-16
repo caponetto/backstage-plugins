@@ -33,7 +33,6 @@ export const WorkflowVariablesViewer: React.FC<ProcessVariablesViewerProps> = ({
     <>{emptyState}</>
   ) : (
     <ReactJson
-      style={{ overflow: 'auto' }}
       src={jsonSource as object}
       name={false}
       theme={theme.palette.type === 'dark' ? 'monokai' : 'rjv-default'}
