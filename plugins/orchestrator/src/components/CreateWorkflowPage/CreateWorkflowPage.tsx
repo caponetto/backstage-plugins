@@ -21,8 +21,7 @@ import {
   editWorkflowRouteRef,
   workflowDefinitionsRouteRef,
 } from '../../routes';
-import { BaseOrchestratorPage } from '../BaseOrchestratorPage/BaseOrchestratorPage';
-import { OrchestratorSupportButton } from '../OrchestratorSupportButton/OrchestratorSupportButton';
+import { BaseOrchestratorPage } from '../next/BaseOrchestratorPage';
 import { WorkflowEditor } from '../WorkflowEditor';
 import {
   EditorViewKind,
@@ -105,9 +104,7 @@ export const CreateWorkflowPage = () => {
     <BaseOrchestratorPage>
       <ContentHeader
         title={`Authoring - ${workflowFormat.toLocaleUpperCase('en-US')}`}
-      >
-        <OrchestratorSupportButton />
-      </ContentHeader>
+      />
       <Grid container spacing={3} direction="column">
         <Grid item>
           {loading && <Progress />}

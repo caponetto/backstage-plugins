@@ -15,7 +15,7 @@ import {
 import { VALUE_UNAVAILABLE } from '../../constants';
 import {
   executeWorkflowRouteRef,
-  nextWorkflowInstanceRouteRef,
+  workflowInstanceRouteRef,
 } from '../../routes';
 import { capitalize } from '../../utils/StringUtils';
 import { EditorViewKind, WorkflowEditor } from '../WorkflowEditor';
@@ -102,7 +102,7 @@ export const WorkflowInstancePageContent: React.FC<{
 }> = ({ processInstance }) => {
   const styles = useStyles();
   const executeWorkflowLink = useRouteRef(executeWorkflowRouteRef);
-  const workflowInstanceLink = useRouteRef(nextWorkflowInstanceRouteRef);
+  const workflowInstanceLink = useRouteRef(workflowInstanceRouteRef);
   const details = React.useMemo(
     () => mapProcessInstanceToDetails(processInstance),
     [processInstance],

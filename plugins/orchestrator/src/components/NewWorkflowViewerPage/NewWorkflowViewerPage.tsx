@@ -28,7 +28,7 @@ import {
   createWorkflowRouteRef,
   workflowDefinitionsRouteRef,
 } from '../../routes';
-import { BaseOrchestratorPage } from '../BaseOrchestratorPage/BaseOrchestratorPage';
+import { BaseOrchestratorPage } from '../next/BaseOrchestratorPage';
 
 type FormData = {
   url: string;

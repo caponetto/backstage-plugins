@@ -61,7 +61,7 @@ export const WorkflowDefinitionViewerPage = () => {
   return (
     <BaseOrchestratorPage
       title={workflowOverview?.name || workflowId}
-      type="workflows"
+      type="Workflows"
       typeLink="/orchestrator"
     >
       <Grid container spacing={2} direction="column" wrap="nowrap">

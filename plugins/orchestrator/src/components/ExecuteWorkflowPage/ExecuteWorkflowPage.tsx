@@ -124,7 +124,7 @@ export const ExecuteWorkflowPage = () => {
     <BaseOrchestratorPage
       noPadding={loading}
       title={schemaResponse?.workflowItem.definition.name || workflowId}
-      type="workflows"
+      type="Workflows"
       typeLink="/orchestrator"
     >
       {pageContent}

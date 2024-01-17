@@ -62,7 +62,7 @@ export const WorkflowInstancePage = ({
     <BaseOrchestratorPage
       title={value?.processId ?? value?.id ?? instanceId}
       type="Workflow runs"
-      typeLink="/orchestrator/next/instances"
+      typeLink="/orchestrator/instances"
     >
       {loading ? <Progress /> : null}
       {error ? <ResponseErrorPanel error={error} /> : null}
