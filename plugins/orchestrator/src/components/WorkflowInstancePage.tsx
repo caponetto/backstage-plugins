@@ -1,5 +1,4 @@
 import React from 'react';
-import { useAsyncRetry } from 'react-use';
 
 import {
   ContentHeader,
@@ -10,9 +9,12 @@ import { useApi, useRouteRefParams } from '@backstage/core-plugin-api';
 
 import { Button, Grid } from '@material-ui/core';
 
+import { ProcessInstance } from '@janus-idp/backstage-plugin-orchestrator-common';
+
 import { orchestratorApiRef } from '../api';
 import { workflowInstanceRouteRef } from '../routes';
 import { isNonNullable } from '../utils/TypeGuards';
+import usePolling from '../utils/usePolling';
 import { BaseOrchestratorPage } from './BaseOrchestratorPage';
 import { WorkflowInstancePageContent } from './WorkflowInstancePageContent';
 
@@ -26,15 +28,21 @@ export const WorkflowInstancePage = ({
     workflowInstanceRouteRef,
   );
 
-  const { loading, error, value, retry } = useAsyncRetry(async () => {
-    if (!instanceId && !queryInstanceId) {
-      return undefined;
-    }
-    return await orchestratorApi.getInstance(instanceId || queryInstanceId);
-  }, [orchestratorApi, queryInstanceId]);
+  const { loading, error, value, restart } = usePolling<
+    ProcessInstance | undefined
+  >(
+    async () => {
+      if (!instanceId && !queryInstanceId) {
+        return undefined;
+      }
+      return await orchestratorApi.getInstance(instanceId || queryInstanceId);
+    },
+    5000,
+    (curValue: ProcessInstance | undefined) =>
+      !!curValue && curValue.state === 'ACTIVE',
+  );
 
   const isReady = React.useMemo(() => !loading && !error, [loading, error]);
-
   const handleAbort = React.useCallback(async () => {
     if (value) {
       // eslint-disable-next-line no-alert
@@ -45,7 +53,7 @@ export const WorkflowInstancePage = ({
       if (yes) {
         try {
           await orchestratorApi.abortWorkflow(value.id);
-          retry();
+          restart();
         } catch (e) {
           // eslint-disable-next-line no-alert
           window.alert(
@@ -56,7 +64,7 @@ export const WorkflowInstancePage = ({
         }
       }
     }
-  }, [orchestratorApi, retry, value]);
+  }, [orchestratorApi, restart, value]);
 
   return (
     <BaseOrchestratorPage
