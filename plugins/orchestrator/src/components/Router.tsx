@@ -17,9 +17,9 @@ import {
 import { CreateWorkflowPage } from './CreateWorkflowPage';
 import { ExecuteWorkflowPage } from './ExecuteWorkflowPage/ExecuteWorkflowPage';
 import { NewWorkflowViewerPage } from './NewWorkflowViewerPage';
-import { OrchestratorPage } from './next/OrchestratorPage';
-import { WorkflowInstancePage } from './next/WorkflowInstancePage';
+import { OrchestratorPage } from './OrchestratorPage';
 import { WorkflowDefinitionViewerPage } from './WorkflowDefinitionViewerPage';
+import { WorkflowInstancePage } from './WorkflowInstancePage';
 
 export const Router = () => {
   return (

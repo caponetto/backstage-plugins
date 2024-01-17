@@ -10,9 +10,9 @@ import { useApi, useRouteRefParams } from '@backstage/core-plugin-api';
 
 import { Button, Grid } from '@material-ui/core';
 
-import { orchestratorApiRef } from '../../api';
-import { workflowInstanceRouteRef } from '../../routes';
-import { isNonNullable } from '../../utils/TypeGuards';
+import { orchestratorApiRef } from '../api';
+import { workflowInstanceRouteRef } from '../routes';
+import { isNonNullable } from '../utils/TypeGuards';
 import { BaseOrchestratorPage } from './BaseOrchestratorPage';
 import { WorkflowInstancePageContent } from './WorkflowInstancePageContent';
 
