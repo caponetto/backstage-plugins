@@ -20,7 +20,6 @@ import {
 import { capitalize } from '../utils/StringUtils';
 import { EditorViewKind, WorkflowEditor } from './WorkflowEditor';
 import { WorkflowInstanceStatusIndicator } from './WorkflowInstanceStatusIndicator';
-import { WorkflowProgress } from './WorkflowProgress';
 import { WorkflowRunDetail, WorkflowSuggestion } from './WorkflowRunDetail';
 import { WorkflowVariablesViewer } from './WorkflowVariablesViewer';
 
