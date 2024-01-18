@@ -206,7 +206,7 @@ export const WorkflowInstancePageContent: React.FC<{
           </InfoCard>
         </Grid>
 
-        <Grid item xs={6}>
+        {/* <Grid item xs={6}>
           <InfoCard
             title="Workflow progress"
             divider={false}
@@ -219,7 +219,7 @@ export const WorkflowInstancePageContent: React.FC<{
               workflowStatus={processInstance.state}
             />
           </InfoCard>
-        </Grid>
+        </Grid> */}
 
         {nextWorkflows.length > 0 ? (
           <Grid item xs={12}>
