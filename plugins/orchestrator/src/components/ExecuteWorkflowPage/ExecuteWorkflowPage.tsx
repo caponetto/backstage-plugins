@@ -47,6 +47,7 @@ export const ExecuteWorkflowPage = (props: ExecuteWorkflowPageProps) => {
   const [schemaResponse, setSchemaResponse] =
     useState<WorkflowDataInputSchemaResponse>();
   const [workflowDialogOpen, setWorkflowDialogOpen] = useState<boolean>(false);
+  const [variables, setVariables] = useState<JsonValue>();
   const [formState, setFormState] = useState(props.initialState);
 
   const navigate = useNavigate();
@@ -54,6 +55,16 @@ export const ExecuteWorkflowPage = (props: ExecuteWorkflowPageProps) => {
 
   useEffect(() => {
     setLoading(true);
+
+    if (businessKey !== undefined) {
+      orchestratorApi.getInstance(businessKey).then(reponse => {
+        setVariables(
+          (reponse.variables as Record<string, unknown>)
+            ?.workflowdata as JsonValue,
+        );
+      });
+    }
+
     orchestratorApi
       .getWorkflowDataInputSchema(workflowId)
       .then(response => {
@@ -62,7 +73,7 @@ export const ExecuteWorkflowPage = (props: ExecuteWorkflowPageProps) => {
       .finally(() => {
         setLoading(false);
       });
-  }, [orchestratorApi, workflowId]);
+  }, [orchestratorApi, workflowId, businessKey]);
 
   const onExecute = useCallback(async () => {
     const parameters: Record<string, JsonValue> = {};
@@ -97,8 +108,19 @@ export const ExecuteWorkflowPage = (props: ExecuteWorkflowPageProps) => {
   ]);
 
   const onFormChanged = useCallback(
-    e => setFormState(current => ({ ...current, ...e.formData })),
-    [setFormState],
+    e => {
+      if (businessKey !== undefined) {
+        if (schemaResponse?.schema?.properties) {
+          Object.keys(schemaResponse?.schema?.properties).forEach(key => {
+            if (variables !== undefined && variables[key] !== undefined) {
+              e.formData[key] = variables[key];
+            }
+          });
+        }
+      }
+      setFormState(current => ({ ...current, ...e.formData }));
+    },
+    [setFormState, businessKey, schemaResponse, variables],
   );
 
   const executeButton = useMemo(
