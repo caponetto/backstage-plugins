@@ -22,11 +22,8 @@ import {
 } from '@janus-idp/backstage-plugin-orchestrator-common';
 
 import { orchestratorApiRef } from '../api';
-import { VALUE_UNAVAILABLE } from '../constants';
-import {
-  executeWorkflowWithBusinessKeyRouteRef,
-  workflowInstanceRouteRef,
-} from '../routes';
+import { QUERY_PARAM_INSTANCE_ID, VALUE_UNAVAILABLE } from '../constants';
+import { executeWorkflowRouteRef, workflowInstanceRouteRef } from '../routes';
 import { capitalize, ellipsis } from '../utils/StringUtils';
 import { Selector } from './Selector';
 import { mapProcessInstanceToDetails } from './WorkflowInstancePageContent';
@@ -51,9 +48,7 @@ export const WorkflowRunsTabContent = () => {
   const navigate = useNavigate();
   const orchestratorApi = useApi(orchestratorApiRef);
   const workflowInstanceLink = useRouteRef(workflowInstanceRouteRef);
-  const executeWorkflowLink = useRouteRef(
-    executeWorkflowWithBusinessKeyRouteRef,
-  );
+  const executeWorkflowLink = useRouteRef(executeWorkflowRouteRef);
   const [statusSelectorValue, setStatusSelectorValue] = useState<string>(
     Selector.AllItems,
   );
@@ -130,10 +125,9 @@ export const WorkflowRunsTabContent = () => {
   const handleReRun = useCallback(
     (rowData: WorkflowRunDetail) => {
       navigate(
-        executeWorkflowLink({
+        `${executeWorkflowLink({
           workflowId: rowData.workflowId,
-          businessKey: rowData.id,
-        }),
+        })}?${QUERY_PARAM_INSTANCE_ID}=${rowData.id}`,
       );
     },
     [navigate, executeWorkflowLink],

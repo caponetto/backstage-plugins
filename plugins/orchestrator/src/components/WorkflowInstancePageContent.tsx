@@ -12,11 +12,12 @@ import {
   ProcessInstanceStateValues,
 } from '@janus-idp/backstage-plugin-orchestrator-common';
 
-import { VALUE_UNAVAILABLE } from '../constants';
 import {
-  executeWorkflowWithBusinessKeyRouteRef,
-  workflowInstanceRouteRef,
-} from '../routes';
+  QUERY_PARAM_ASSESSMENT_ID,
+  QUERY_PARAM_INSTANCE_ID,
+  VALUE_UNAVAILABLE,
+} from '../constants';
+import { executeWorkflowRouteRef, workflowInstanceRouteRef } from '../routes';
 import { capitalize } from '../utils/StringUtils';
 import { EditorViewKind, WorkflowEditor } from './WorkflowEditor';
 import { WorkflowInstanceStatusIndicator } from './WorkflowInstanceStatusIndicator';
@@ -60,9 +61,7 @@ export const mapProcessInstanceToDetails = (
 
 const getNextWorkflows = (
   details: WorkflowRunDetail,
-  executeWorkflowLink: RouteFunc<
-    PathParams<'/workflows/:workflowId/execute/:businessKey'>
-  >,
+  executeWorkflowLink: RouteFunc<PathParams<'/workflows/:workflowId/execute'>>,
 ) => {
   const nextWorkflows: { title: string; link: string }[] = [];
 
@@ -75,10 +74,11 @@ const getNextWorkflows = (
         // Produce flat structure
         nextWorkflows.push({
           title: nextWorkflowSuggestion.name,
-          link: executeWorkflowLink({
+          link: `${executeWorkflowLink({
             workflowId: nextWorkflowSuggestion.id,
-            businessKey: details.id,
-          }),
+          })}?${QUERY_PARAM_INSTANCE_ID}=${
+            details.id
+          }&${QUERY_PARAM_ASSESSMENT_ID}=${details.workflowId}`,
         });
       });
     });
@@ -104,9 +104,7 @@ export const WorkflowInstancePageContent: React.FC<{
   processInstance: ProcessInstance;
 }> = ({ processInstance }) => {
   const styles = useStyles();
-  const executeWorkflowLink = useRouteRef(
-    executeWorkflowWithBusinessKeyRouteRef,
-  );
+  const executeWorkflowLink = useRouteRef(executeWorkflowRouteRef);
   const workflowInstanceLink = useRouteRef(workflowInstanceRouteRef);
   const details = React.useMemo(
     () => mapProcessInstanceToDetails(processInstance),
