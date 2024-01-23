@@ -1,5 +1,5 @@
 import { createApiRef } from '@backstage/core-plugin-api';
-import { JsonValue } from '@backstage/types';
+import { JsonObject } from '@backstage/types';
 
 import {
   Job,
@@ -18,7 +18,7 @@ export interface OrchestratorApi {
 
   executeWorkflow(args: {
     workflowId: string;
-    parameters: Record<string, JsonValue>;
+    parameters: JsonObject;
   }): Promise<WorkflowExecutionResponse>;
 
   getWorkflow(workflowId: string): Promise<WorkflowItem>;
@@ -33,9 +33,10 @@ export interface OrchestratorApi {
 
   getInstanceJobs(instanceId: string): Promise<Job[]>;
 
-  getWorkflowDataInputSchema(
-    workflowId: string,
-  ): Promise<WorkflowDataInputSchemaResponse>;
+  getWorkflowDataInputSchema(args: {
+    workflowId: string;
+    instanceId?: string;
+  }): Promise<WorkflowDataInputSchemaResponse>;
 
   createWorkflowDefinition(
     uri: string,

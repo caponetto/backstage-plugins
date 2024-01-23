@@ -12,7 +12,7 @@ import {
   useRouteRef,
   useRouteRefParams,
 } from '@backstage/core-plugin-api';
-import { JsonValue } from '@backstage/types';
+import { JsonObject } from '@backstage/types';
 
 import { Grid } from '@material-ui/core';
 
@@ -45,14 +45,17 @@ export const ExecuteWorkflowPage = () => {
     error: responseError,
   } = useAsync(
     async (): Promise<WorkflowDataInputSchemaResponse> =>
-      await orchestratorApi.getWorkflowDataInputSchema(workflowId),
+      await orchestratorApi.getWorkflowDataInputSchema({
+        workflowId,
+        instanceId: businessKey,
+      }),
     [orchestratorApi, workflowId],
   );
 
   const handleExecute = useCallback(
-    async (getParameters: () => Record<string, JsonValue>) => {
+    async (getParameters: () => JsonObject) => {
       setUpdateError(undefined);
-      let parameters: Record<string, JsonValue> = {};
+      let parameters: JsonObject = {};
       try {
         parameters = getParameters();
       } catch (err) {
@@ -105,6 +108,7 @@ export const ExecuteWorkflowPage = () => {
             {schemaResponse.schemas.length > 0 ? (
               <StepperForm
                 refSchemas={schemaResponse.schemas}
+                initialState={schemaResponse.initialState}
                 handleExecute={handleExecute}
                 isExecuting={isExecuting}
               />

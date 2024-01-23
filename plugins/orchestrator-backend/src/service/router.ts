@@ -21,6 +21,7 @@ import {
 import { RouterArgs } from '../routerWrapper';
 import { ApiResponseBuilder } from '../types/apiResponse';
 import { CloudEventService } from './CloudEventService';
+import { WORKFLOW_DATA_KEY } from './constants';
 import { DataIndexService } from './DataIndexService';
 import { DataInputSchemaService } from './DataInputSchemaService';
 import { JiraEvent, JiraService } from './JiraService';
@@ -297,6 +298,8 @@ function setupInternalRoutes(
       params: { workflowId },
     } = req;
 
+    const { instanceId } = req.query;
+
     const workflowDefinition =
       await dataIndexService.getWorkflowDefinition(workflowId);
     const serviceUrl = workflowDefinition.serviceUrl;
@@ -304,7 +307,6 @@ function setupInternalRoutes(
       throw new Error(`ServiceUrl is not defined for workflow ${workflowId}`);
     }
 
-    // workflow source
     const definition =
       await sonataFlowService.fetchWorkflowDefinition(workflowId);
 
@@ -323,6 +325,7 @@ function setupInternalRoutes(
     const workflowItem: WorkflowItem = { uri, definition };
 
     let schemas: JSONSchema7[] = [];
+    let initialState: JsonObject[] = [];
 
     if (definition.dataInputSchema) {
       const workflowInfo = await sonataFlowService.fetchWorkflowInfo(
@@ -345,11 +348,27 @@ function setupInternalRoutes(
       schemas = dataInputSchemaService.parseComposition(
         workflowInfo.inputSchema,
       );
+
+      const instanceVariables =
+        instanceId && typeof instanceId === 'string'
+          ? await dataIndexService.fetchProcessInstanceVariables(instanceId)
+          : undefined;
+
+      const workflowData = instanceVariables?.[WORKFLOW_DATA_KEY];
+
+      if (workflowData) {
+        initialState =
+          dataInputSchemaService.extractInitialStateFromWorkflowData({
+            workflowData: workflowData as JsonObject,
+            schemas,
+          });
+      }
     }
 
     const response: WorkflowDataInputSchemaResponse = {
       workflowItem,
       schemas,
+      initialState,
     };
 
     res.status(200).json(response);

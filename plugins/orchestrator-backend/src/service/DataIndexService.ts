@@ -1,3 +1,5 @@
+import { JsonObject } from '@backstage/types';
+
 import { Client, fetchExchange, gql } from '@urql/core';
 import { Logger } from 'winston';
 
@@ -188,6 +190,35 @@ export class DataIndexService {
     }
 
     return result.data.Jobs;
+  }
+
+  public async fetchProcessInstanceVariables(
+    instanceId: string,
+  ): Promise<JsonObject | undefined> {
+    const graphQlQuery = `{ ProcessInstances (where: { id: {equal: "${instanceId}" } } ) { variables } }`;
+
+    const result = await this.client.query(graphQlQuery, {});
+
+    if (result.error) {
+      this.logger.error(
+        `Error when fetching process instance variables: ${result.error}`,
+      );
+      throw result.error;
+    }
+
+    const variables = result.data.ProcessInstances.pop().variables;
+
+    if (typeof variables === 'object') {
+      return variables;
+    }
+
+    try {
+      return JSON.parse(variables) as JsonObject;
+    } catch {
+      throw new Error(
+        `Error when parsing process instance variables: ${variables}`,
+      );
+    }
   }
 
   public async fetchProcessInstance(

@@ -91,4 +91,5 @@ export const fakeDataInputSchemaReponse: WorkflowDataInputSchemaResponse = {
       },
     },
   ],
+  initialState: [],
 };

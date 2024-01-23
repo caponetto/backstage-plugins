@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAsync } from 'react-use';
 
 import {
@@ -8,10 +9,12 @@ import {
   SelectItem,
   Table,
   TableColumn,
+  TableProps,
 } from '@backstage/core-components';
 import { useApi, useRouteRef } from '@backstage/core-plugin-api';
 
 import { Grid } from '@material-ui/core';
+import Replay from '@material-ui/icons/Replay';
 
 import {
   ProcessInstanceState,
@@ -20,7 +23,10 @@ import {
 
 import { orchestratorApiRef } from '../api';
 import { VALUE_UNAVAILABLE } from '../constants';
-import { workflowInstanceRouteRef } from '../routes';
+import {
+  executeWorkflowWithBusinessKeyRouteRef,
+  workflowInstanceRouteRef,
+} from '../routes';
 import { capitalize, ellipsis } from '../utils/StringUtils';
 import { Selector } from './Selector';
 import { mapProcessInstanceToDetails } from './WorkflowInstancePageContent';
@@ -42,8 +48,12 @@ const makeSelectItemsFromProcessInstanceValues = () =>
   );
 
 export const WorkflowRunsTabContent = () => {
+  const navigate = useNavigate();
   const orchestratorApi = useApi(orchestratorApiRef);
   const workflowInstanceLink = useRouteRef(workflowInstanceRouteRef);
+  const executeWorkflowLink = useRouteRef(
+    executeWorkflowWithBusinessKeyRouteRef,
+  );
   const [statusSelectorValue, setStatusSelectorValue] = useState<string>(
     Selector.AllItems,
   );
@@ -117,6 +127,30 @@ export const WorkflowRunsTabContent = () => {
     [statusSelectorValue, statuses],
   );
 
+  const handleReRun = useCallback(
+    (rowData: WorkflowRunDetail) => {
+      navigate(
+        executeWorkflowLink({
+          workflowId: rowData.workflowId,
+          businessKey: rowData.id,
+        }),
+      );
+    },
+    [navigate, executeWorkflowLink],
+  );
+
+  const actions = useMemo(() => {
+    const actionItems: TableProps<WorkflowRunDetail>['actions'] = [
+      {
+        icon: Replay,
+        tooltip: 'Rerun',
+        onClick: (_, rowData) => handleReRun(rowData as WorkflowRunDetail),
+      },
+    ];
+
+    return actionItems;
+  }, [handleReRun]);
+
   return error ? (
     <ErrorPanel error={error} />
   ) : (
@@ -126,10 +160,12 @@ export const WorkflowRunsTabContent = () => {
         options={{
           search: true,
           paging: true,
+          actionsColumnIndex: columns.length,
         }}
         isLoading={loading}
         columns={columns}
         data={filteredData}
+        actions={actions}
       />
     </InfoCard>
   );

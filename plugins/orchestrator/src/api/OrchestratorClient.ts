@@ -1,6 +1,6 @@
 import { DiscoveryApi } from '@backstage/core-plugin-api';
 import { ResponseError } from '@backstage/errors';
-import { JsonValue } from '@backstage/types';
+import { JsonObject } from '@backstage/types';
 
 import {
   Job,
@@ -14,6 +14,7 @@ import {
   WorkflowSpecFile,
 } from '@janus-idp/backstage-plugin-orchestrator-common';
 
+import { QUERY_PARAM_INSTANCE_ID } from '../constants';
 import { OrchestratorApi } from './api';
 
 export interface OrchestratorClientOptions {
@@ -36,7 +37,7 @@ export class OrchestratorClient implements OrchestratorApi {
 
   async executeWorkflow(args: {
     workflowId: string;
-    parameters: Record<string, JsonValue>;
+    parameters: JsonObject;
   }): Promise<WorkflowExecutionResponse> {
     const baseUrl = await this.getBaseUrl();
     const res = await fetch(`${baseUrl}/workflows/${args.workflowId}/execute`, {
@@ -118,11 +119,17 @@ export class OrchestratorClient implements OrchestratorApi {
     return await res.json();
   }
 
-  async getWorkflowDataInputSchema(
-    workflowId: string,
-  ): Promise<WorkflowDataInputSchemaResponse> {
+  async getWorkflowDataInputSchema(args: {
+    workflowId: string;
+    instanceId?: string;
+  }): Promise<WorkflowDataInputSchemaResponse> {
+    const queryParams = args.instanceId
+      ? `?${QUERY_PARAM_INSTANCE_ID}=${args.instanceId}`
+      : '';
     const baseUrl = await this.getBaseUrl();
-    const res = await fetch(`${baseUrl}/workflows/${workflowId}/inputSchema`);
+    const res = await fetch(
+      `${baseUrl}/workflows/${args.workflowId}/inputSchema${queryParams}`,
+    );
     if (!res.ok) {
       throw await ResponseError.fromResponse(res);
     }

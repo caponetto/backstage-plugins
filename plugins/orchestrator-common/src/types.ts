@@ -1,3 +1,5 @@
+import { JsonObject } from '@backstage/types';
+
 import { Specification } from '@severlessworkflow/sdk-typescript';
 import { JSONSchema7 } from 'json-schema';
 import { OpenAPIV3 } from 'openapi-types';
@@ -56,6 +58,7 @@ export interface WorkflowSpecFile {
 export interface WorkflowDataInputSchemaResponse {
   workflowItem: WorkflowItem;
   schemas: JSONSchema7[];
+  initialState: JsonObject[];
 }
 
 export interface WorkflowExecutionResponse {
