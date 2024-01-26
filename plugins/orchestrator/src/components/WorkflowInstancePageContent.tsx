@@ -32,7 +32,12 @@ export const mapProcessInstanceToDetails = (
   const end = moment(instance.end?.toString());
   const duration = moment.duration(start.diff(end));
   const name = instance.processName || instance.processId;
-  const businessKey = instance.businessKey;
+  const businessKey = (
+    (instance?.variables as Record<string, unknown>)?.workflowdata as Record<
+      string,
+      unknown
+    >
+  )?.businessKey as string;
 
   let variables: Record<string, unknown> | undefined;
   if (typeof instance?.variables === 'string') {
@@ -89,10 +94,10 @@ const getNextWorkflows = (
 
 const useStyles = makeStyles(_ => ({
   topRowCard: {
-    height: '252px',
+    height: '258px',
   },
   middleRowCard: {
-    height: 'calc(2 * 252px)',
+    height: 'calc(2 * 258px)',
   },
   bottomRowCard: {
     height: '100%',
@@ -102,7 +107,8 @@ const useStyles = makeStyles(_ => ({
 
 export const WorkflowInstancePageContent: React.FC<{
   processInstance: ProcessInstance;
-}> = ({ processInstance }) => {
+  assessmentInstance: ProcessInstance | undefined;
+}> = ({ processInstance, assessmentInstance }) => {
   const styles = useStyles();
   const executeWorkflowLink = useRouteRef(executeWorkflowRouteRef);
   const workflowInstanceLink = useRouteRef(workflowInstanceRouteRef);
@@ -113,6 +119,10 @@ export const WorkflowInstancePageContent: React.FC<{
   const detailLabelValues = React.useMemo(() => {
     const labelsAndValues = [
       {
+        label: 'Category',
+        value: capitalize(details.category ?? VALUE_UNAVAILABLE),
+      },
+      {
         label: 'Status',
         value: (
           <WorkflowInstanceStatusIndicator
@@ -120,22 +130,20 @@ export const WorkflowInstancePageContent: React.FC<{
           />
         ),
       },
-      { label: 'Started', value: details.started },
-      { label: 'ID', value: details.id },
-      {
-        label: 'Category',
-        value: capitalize(details.category ?? VALUE_UNAVAILABLE),
-      },
       { label: 'Duration', value: details.duration },
+      { label: 'ID', value: details.id },
+      { label: 'Started', value: details.started },
       { label: 'Description', value: details.description },
     ];
 
-    if (details.businessKey) {
+    if (assessmentInstance) {
       labelsAndValues.push({
         label: 'Assessed by',
         value: (
-          <Link to={workflowInstanceLink({ instanceId: details.businessKey })}>
-            {details.businessKey}
+          <Link
+            to={workflowInstanceLink({ instanceId: assessmentInstance.id })}
+          >
+            {assessmentInstance?.processName}
           </Link>
         ),
       });
@@ -143,7 +151,6 @@ export const WorkflowInstancePageContent: React.FC<{
 
     return labelsAndValues;
   }, [
-    details.businessKey,
     details.category,
     details.description,
     details.duration,
@@ -151,6 +158,7 @@ export const WorkflowInstancePageContent: React.FC<{
     details.started,
     details.status,
     workflowInstanceLink,
+    assessmentInstance,
   ]);
 
   const nextWorkflows = React.useMemo(
@@ -169,7 +177,7 @@ export const WorkflowInstancePageContent: React.FC<{
           >
             <Grid container spacing={3}>
               {detailLabelValues.map(item => (
-                <Grid item xs={4} key={item.label}>
+                <Grid item xs={3} key={item.label}>
                   <AboutField label={item.label} value={item.value as string} />
                 </Grid>
               ))}

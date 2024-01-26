@@ -26,17 +26,45 @@ export const WorkflowInstancePage = ({
     workflowInstanceRouteRef,
   );
 
-  const { loading, error, value, retry } = useAsyncRetry(async () => {
+  const {
+    loading: loadingInstance,
+    error: errorInstance,
+    value: valueInstance,
+    retry: retryInstance,
+  } = useAsyncRetry(async () => {
     if (!instanceId && !queryInstanceId) {
       return undefined;
     }
     return await orchestratorApi.getInstance(instanceId || queryInstanceId);
   }, [orchestratorApi, queryInstanceId]);
 
-  const isReady = React.useMemo(() => !loading && !error, [loading, error]);
+  const {
+    loading: loadingAssessment,
+    error: errorAssessment,
+    value: valueAssessment,
+  } = useAsyncRetry(async () => {
+    const businessKey = (
+      (valueInstance?.variables as Record<string, unknown>)
+        ?.workflowdata as Record<string, unknown>
+    )?.businessKey as string;
+    if (businessKey === undefined) {
+      return undefined;
+    }
+    return await orchestratorApi.getInstance(businessKey);
+  }, [orchestratorApi, valueInstance]);
+
+  const isInstanceReady = React.useMemo(
+    () => !loadingInstance && !errorInstance,
+    [loadingInstance, errorInstance],
+  );
+
+  const isAssessmentReady = React.useMemo(
+    () => !loadingAssessment && !errorAssessment,
+    [loadingAssessment, errorAssessment],
+  );
 
   const handleAbort = React.useCallback(async () => {
-    if (value) {
+    if (valueInstance) {
       // eslint-disable-next-line no-alert
       const yes = window.confirm(
         'Are you sure you want to abort this instance?',
@@ -44,8 +72,8 @@ export const WorkflowInstancePage = ({
 
       if (yes) {
         try {
-          await orchestratorApi.abortWorkflow(value.id);
-          retry();
+          await orchestratorApi.abortWorkflow(valueInstance.id);
+          retryInstance();
         } catch (e) {
           // eslint-disable-next-line no-alert
           window.alert(
@@ -56,17 +84,18 @@ export const WorkflowInstancePage = ({
         }
       }
     }
-  }, [orchestratorApi, retry, value]);
+  }, [orchestratorApi, retryInstance, valueInstance]);
 
   return (
     <BaseOrchestratorPage
-      title={value?.processId ?? value?.id ?? instanceId}
+      title={valueInstance?.processId ?? valueInstance?.id ?? instanceId}
       type="Workflow runs"
       typeLink="/orchestrator/instances"
     >
-      {loading ? <Progress /> : null}
-      {error ? <ResponseErrorPanel error={error} /> : null}
-      {isReady && isNonNullable(value) ? (
+      {loadingInstance && isAssessmentReady ? <Progress /> : null}
+      {errorInstance ? <ResponseErrorPanel error={errorInstance} /> : null}
+      {errorAssessment ? <ResponseErrorPanel error={errorAssessment} /> : null}
+      {isInstanceReady && isNonNullable(valueInstance) ? (
         <>
           <ContentHeader title="">
             <Grid container item justifyContent="flex-end" spacing={1}>
@@ -74,15 +103,20 @@ export const WorkflowInstancePage = ({
                 <Button
                   variant="contained"
                   color="secondary"
-                  disabled={value?.state !== 'ACTIVE'}
-                  onClick={value?.state === 'ACTIVE' ? handleAbort : undefined}
+                  disabled={valueInstance?.state !== 'ACTIVE'}
+                  onClick={
+                    valueInstance?.state === 'ACTIVE' ? handleAbort : undefined
+                  }
                 >
                   Abort
                 </Button>
               </Grid>
             </Grid>
           </ContentHeader>
-          <WorkflowInstancePageContent processInstance={value} />
+          <WorkflowInstancePageContent
+            processInstance={valueInstance}
+            assessmentInstance={valueAssessment}
+          />
         </>
       ) : null}
     </BaseOrchestratorPage>
